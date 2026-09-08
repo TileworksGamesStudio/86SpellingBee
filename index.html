@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>86 SPELLING BEE — Daily Cocktail Honeycomb Game</title>
+  <meta name="description" content="A daily cocktail-themed spelling bee puzzle. Form recipes from the honeycomb hive, discover cocktail pangrams, and climb from Barback to Cocktail Legend.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Ambient Cocktail Lounge Background & Floating Garnish System -->
+  <div class="ambient-lounge-bg" aria-hidden="true">
+    <div class="lounge-glow glow-top"></div>
+    <div class="lounge-glow glow-bottom"></div>
+    <div class="lounge-light-source"></div>
+    <div class="garnish-stage" id="garnishStage"></div>
+  </div>
+
+  <div class="app-viewport">
+
+    <!-- ======================================================================
+         VIEW 1: STANDALONE MAIN MENU SCREEN (Platform Standard)
+         ====================================================================== -->
+    <section class="screen-view main-menu-view" id="mainMenuScreen" aria-label="Main Menu Screen">
+      <div class="menu-container">
+        
+        <!-- Platform Branding & Game Title -->
+        <header class="menu-header">
+          <span class="platform-badge">THE 86 COCKTAIL CLUB</span>
+          <h1 class="game-main-title">SPELLING BEE</h1>
+          <p class="game-tagline">Daily Cocktail Honeycomb Shaker</p>
+        </header>
+
+        <!-- Main Navigation Stack (Strict Platform Hierarchy) -->
+        <div class="menu-action-stack">
+
+          <!-- 1. PRIMARY ACTION: TODAY'S PUZZLE CARD -->
+          <article class="menu-card today-hero-card" id="todayHeroCard">
+            <div class="card-glass-shine" aria-hidden="true"></div>
+            <div class="card-top-row">
+              <span class="service-live-badge">
+                <span class="live-dot" aria-hidden="true"></span>
+                <span id="menuTodayBadge">TODAY'S SERVICE</span>
+              </span>
+              <span class="card-diff-pill" id="menuDiffPill">MEDIUM</span>
+            </div>
+
+            <div class="card-body">
+              <h2 class="card-theme-title" id="menuThemeTitle">Loading Spec...</h2>
+              <span class="card-category-label" id="menuCurriculumCategory">Mixology Fundamentals</span>
+              <div class="card-status-bar" id="menuStatusBar">
+                <span class="status-metric" id="menuStatusText">Ready for Service</span>
+                <span class="status-rank-badge" id="menuStatusRank">Barback</span>
+              </div>
+            </div>
+
+            <button type="button" class="neo-btn btn-primary-play" id="playTodayBtn" aria-label="Play Today's Puzzle">
+              <span class="btn-play-icon">🍸</span>
+              <span id="playBtnText">START SHIFT</span>
+            </button>
+          </article>
+
+          <!-- 2. SECONDARY ACTION: THE CELLAR VAULT -->
+          <button type="button" class="neo-btn menu-card vault-menu-card" id="openVaultMenuBtn" aria-label="Open The Cellar Vault">
+            <div class="vault-btn-left">
+              <span class="vault-icon">🗝️</span>
+              <div class="vault-copy">
+                <h3 class="vault-title">THE CELLAR VAULT</h3>
+                <span class="vault-sub">Past editions & historical cocktail specs</span>
+              </div>
+            </div>
+            <span class="vault-count-badge" id="vaultArchiveCountBadge">0 Editions</span>
+          </button>
+
+          <!-- 3. PLATFORM HUB: ALL 86 GAMES LINK -->
+          <a href="https://tileworksgamesstudio.github.io/86/" class="neo-btn menu-card platform-hub-card" id="all86GamesLink" aria-label="Return to All 86 Cocktail Games Hub">
+            <div class="vault-btn-left">
+              <span class="hub-icon">🏛️</span>
+              <div class="vault-copy">
+                <h3 class="vault-title">ALL 86 GAMES</h3>
+                <span class="vault-sub">Master Lounge & Cocktail Puzzles</span>
+              </div>
+            </div>
+            <span class="hub-arrow-badge">EXIT ↗</span>
+          </a>
+
+          <!-- 4. UTILITY & PREFERENCES ROW (Sound, How to Play, Stats) -->
+          <div class="menu-utility-row">
+            <button type="button" class="neo-btn utility-btn" id="menuSoundBtn" aria-label="Toggle Sound Effects">
+              <span class="util-icon" id="menuSoundIcon">🔊</span>
+              <span class="util-label" id="menuSoundLabel">SOUND ON</span>
+            </button>
+            <button type="button" class="neo-btn utility-btn" id="menuHowToPlayBtn" aria-label="How to Play Instructions">
+              <span class="util-icon">?</span>
+              <span class="util-label">RULES</span>
+            </button>
+            <button type="button" class="neo-btn utility-btn" id="menuStatsBtn" aria-label="Bartender Career Statistics">
+              <span class="util-icon">📊</span>
+              <span class="util-label">STATS</span>
+            </button>
+          </div>
+
+        </div>
+
+        <footer class="menu-footer">
+          <span>Curriculum of 32 Classic Categories • Level 1 to Master Distiller</span>
+        </footer>
+
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         VIEW 2: ACTIVE GAMEPLAY BOARD (Hero Element)
+         ====================================================================== -->
+    <main class="screen-view game-play-view" id="gameplayScreen" aria-label="Active Game Screen" hidden>
+      
+      <!-- Top Tactical Header -->
+      <header class="game-header">
+        <div class="header-left">
+          <button type="button" id="backToMenuBtn" class="neo-btn header-btn menu-return-btn" aria-label="Return to Main Menu">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <span>MENU</span>
+          </button>
+        </div>
+
+        <div class="header-center">
+          <span class="header-edition" id="gameEditionBadge">TODAY</span>
+        </div>
+
+        <div class="header-right">
+          <button type="button" id="gameSoundBtn" class="neo-btn header-icon-btn" aria-label="Toggle Sound">
+            <span id="gameSoundIcon">🔊</span>
+          </button>
+          <button type="button" id="gameHowBtn" class="neo-btn header-icon-btn" aria-label="How to Play">?</button>
+          <button type="button" id="gameStatsBtn" class="neo-btn header-icon-btn" aria-label="Statistics">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Board Content Scrollable Sandbox -->
+      <div class="game-board-area">
+
+        <!-- Puzzle Details Pill Bar -->
+        <section class="game-meta-strip" aria-label="Cocktail Recipe Information">
+          <div class="meta-strip-item">
+            <span class="strip-label">THEME</span>
+            <span class="strip-val" id="gameThemeTitle">—</span>
+          </div>
+          <div class="meta-strip-item right">
+            <span class="strip-label">CATEGORY</span>
+            <span class="strip-val category-text" id="gameCategoryTitle">—</span>
+          </div>
+        </section>
+
+        <!-- Bartender Rank Progression Ladder -->
+        <section class="rank-ladder-panel" aria-label="Bartender Rank Progression">
+          <div class="rank-header">
+            <div class="rank-title-wrap">
+              <span class="rank-prefix">RANK:</span>
+              <span class="rank-name-label" id="currentRankLabel">Barback</span>
+            </div>
+            <div class="rank-score-pill">
+              <span id="playerCurrentScore">0</span>
+              <span class="score-divider">/</span>
+              <span id="rankMaxScore" class="score-max">100</span>
+              <span class="score-unit">PTS</span>
+            </div>
+          </div>
+          <div class="rank-track-wrap">
+            <div class="rank-progress-bar" id="rankProgressBar" style="width: 0%;"></div>
+            <div class="rank-markers" id="rankMarkers" aria-hidden="true"></div>
+          </div>
+        </section>
+
+        <!-- Word Input & Visual Feedback Stage -->
+        <section class="word-stage" aria-label="Word Input Area">
+          <div class="toast-message" id="toastMessage" role="alert" aria-live="polite"></div>
+          <div class="input-display-wrap">
+            <div class="word-input-display" id="wordInputDisplay" aria-label="Current letters spelled">
+              <span class="cursor-beam" aria-hidden="true"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- The 7-Hexagonal Honeycomb Board (Dominant Hero) -->
+        <section class="hive-wrapper" aria-label="7 Letter Honeycomb Hive">
+          <div class="hive-grid">
+            <!-- Row 1: Top 2 Cells -->
+            <div class="hive-row row-top">
+              <button type="button" class="hive-cell outer-cell" data-letter="" id="cell-0" aria-label="Outer letter">
+                <span class="cell-fill"></span>
+                <span class="cell-letter"></span>
+              </button>
+              <button type="button" class="hive-cell outer-cell" data-letter="" id="cell-1" aria-label="Outer letter">
+                <span class="cell-fill"></span>
+                <span class="cell-letter"></span>
+              </button>
+            </div>
+            <!-- Row 2: Mid 3 Cells (Center Golden Key in Middle) -->
+            <div class="hive-row row-mid">
+              <button type="button" class="hive-cell outer-cell" data-letter="" id="cell-2" aria-label="Outer letter">
+                <span class="cell-fill"></span>
+                <span class="cell-letter"></span>
+              </button>
+              <button type="button" class="hive-cell center-cell" data-letter="" id="cell-center" aria-label="Required Center Letter">
+                <span class="cell-fill"></span>
+                <span class="cell-letter"></span>
+                <span class="center-ring-shine"></span>
+              </button>
+              <button type="button" class="hive-cell outer-cell" data-letter="" id="cell-3" aria-label="Outer letter">
+                <span class="cell-fill"></span>
+                <span class="cell-letter"></span>
+              </button>
+            </div>
+            <!-- Row 3: Bottom 2 Cells -->
+            <div class="hive-row row-bottom">
+              <button type="button" class="hive-cell outer-cell" data-letter="" id="cell-4" aria-label="Outer letter">
+                <span class="cell-fill"></span>
+                <span class="cell-letter"></span>
+              </button>
+              <button type="button" class="hive-cell outer-cell" data-letter="" id="cell-5" aria-label="Outer letter">
+                <span class="cell-fill"></span>
+                <span class="cell-letter"></span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tactile Hive Actions Bar -->
+        <section class="hive-actions-bar" aria-label="Submission and letter controls">
+          <button type="button" id="deleteBtn" class="neo-btn action-btn delete-btn" aria-label="Delete last letter">
+            <span>DELETE</span>
+          </button>
+          <button type="button" id="shuffleBtn" class="neo-btn action-btn shuffle-btn" aria-label="Shuffle outer letters" title="Shuffle Letters">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+          </button>
+          <button type="button" id="enterBtn" class="neo-btn action-btn enter-btn" aria-label="Submit word attempt">
+            <span>ENTER</span>
+          </button>
+        </section>
+
+        <!-- Found Words Accordion Drawer -->
+        <section class="found-words-drawer" id="foundDrawer">
+          <button type="button" class="found-drawer-toggle" id="toggleDrawerBtn" aria-expanded="false" aria-controls="drawerContent">
+            <div class="toggle-info">
+              <span class="drawer-title">Found Words (<span id="foundCount">0</span>)</span>
+              <span class="drawer-preview" id="foundPreview">None yet</span>
+            </div>
+            <span class="drawer-arrow" id="drawerArrow">▲</span>
+          </button>
+          <div class="drawer-content" id="drawerContent" hidden>
+            <div class="found-chips-grid" id="foundChipsGrid"></div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- ======================================================================
+         MODALS: VAULT, HOW TO PLAY, CAREER STATS
+         ====================================================================== -->
+    
+    <!-- Cellar Vault Modal -->
+    <div class="modal-layer" id="vaultModal" role="dialog" aria-modal="true" aria-labelledby="vaultTitle" hidden>
+      <div class="modal-backdrop" data-close="vaultModal"></div>
+      <div class="modal-card neo-card vault-card">
+        <div class="modal-header">
+          <div>
+            <span class="card-subtitle">ARCHIVE OF PAST EDITIONS</span>
+            <h2 id="vaultTitle" class="card-title">THE CELLAR VAULT</h2>
+          </div>
+          <button type="button" class="neo-btn icon-btn" data-close="vaultModal" aria-label="Close Cellar Vault">✕</button>
+        </div>
+        <p class="vault-explanation">Revisit previously released cocktail service puzzles. Replay past shifts, discover pangrams, and master every mixological category.</p>
+        <div class="vault-scroll-area" id="vaultListContainer">
+          <!-- Dynamically Populated with Released Puzzles Only -->
+        </div>
+      </div>
+    </div>
+
+    <!-- How To Play Modal -->
+    <div class="modal-layer" id="rulesModal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle" hidden>
+      <div class="modal-backdrop" data-close="rulesModal"></div>
+      <div class="modal-card neo-card rules-card">
+        <div class="modal-header">
+          <div>
+            <span class="card-subtitle">BAR RULES & SPECS</span>
+            <h2 id="rulesTitle" class="card-title">HOW TO PLAY</h2>
+          </div>
+          <button type="button" class="neo-btn icon-btn" data-close="rulesModal" aria-label="Close Rules">✕</button>
+        </div>
+        <div class="modal-body-scroll">
+          <div class="rules-step">
+            <span class="step-num">1</span>
+            <p>Words must contain at least <strong>4 letters</strong>.</p>
+          </div>
+          <div class="rules-step">
+            <span class="step-num">2</span>
+            <p>Words must include the <strong>center golden letter</strong> in every cocktail attempt.</p>
+          </div>
+          <div class="rules-step">
+            <span class="step-num">3</span>
+            <p>Letters can be used <strong>multiple times</strong> in a word.</p>
+          </div>
+          <div class="rules-step">
+            <span class="step-num">4</span>
+            <p><strong>Scoring:</strong> 4-letter words = 1 pt. Longer words earn 1 point per letter.</p>
+          </div>
+          <div class="rules-step highlight-step">
+            <span class="step-num">★</span>
+            <p><strong>Pangrams:</strong> Words that use all 7 unique letters earn a <strong>+7 point bonus</strong>! Keep an eye out for iconic cocktail terminology!</p>
+          </div>
+          <div class="ranks-guide">
+            <h4 class="guide-heading">BARTENDER RANKINGS</h4>
+            <div class="ranks-grid">
+              <span>Barback</span><span>Novice</span><span>Pourer</span>
+              <span>Line Bartender</span><span>Mixologist</span><span>Senior Mixologist</span>
+              <span>Head Bartender</span><span>Beverage Director</span><span>Cocktail Legend</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Career Statistics Modal -->
+    <div class="modal-layer" id="statsModal" role="dialog" aria-modal="true" aria-labelledby="statsTitle" hidden>
+      <div class="modal-backdrop" data-close="statsModal"></div>
+      <div class="modal-card neo-card stats-card">
+        <div class="modal-header">
+          <div>
+            <span class="card-subtitle">CAREER SERVICE LOG</span>
+            <h2 id="statsTitle" class="card-title">BARTENDER STATS</h2>
+          </div>
+          <button type="button" class="neo-btn icon-btn" data-close="statsModal" aria-label="Close Stats">✕</button>
+        </div>
+        <div class="stats-kpi-grid">
+          <div class="kpi-box">
+            <span class="kpi-val" id="statPlayed">0</span>
+            <span class="kpi-label">Puzzles Played</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-val" id="statWords">0</span>
+            <span class="kpi-label">Words Poured</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-val" id="statPangrams">0</span>
+            <span class="kpi-label">Pangrams Found</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-val" id="statPoints">0</span>
+            <span class="kpi-label">Total Points</span>
+          </div>
+        </div>
+        <div class="streak-banner">
+          <div class="streak-item">
+            <span class="streak-label">DAILY STREAK</span>
+            <span class="streak-val" id="statCurrentStreak">0 Days</span>
+          </div>
+          <div class="streak-item">
+            <span class="streak-label">BEST STREAK</span>
+            <span class="streak-val" id="statMaxStreak">0 Days</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Content Database (Preserved) -->
+  <script src="puzzles.js"></script>
+  <!-- Game Engine & Platform Controller -->
+  <script src="script.js"></script>
+</body>
+</html>
