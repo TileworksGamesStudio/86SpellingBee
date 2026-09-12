@@ -1,217 +1,176 @@
-/**
- * ============================================================================
- * COCKTAIL SPELLING BEE — GAME ENGINE & PLATFORM CONTROLLER
- * Architecture: Standalone Main Menu, Day 0 Anchor (8 Sep 2026),
- * Deterministic Scheduler, Garnish Background System, Web Audio Synthesizer,
- * Touch/Keyboard Input & LocalStorage State Management.
- * ============================================================================
- */
-
 (function () {
   'use strict';
 
-  // Master Platform Anchor: 8 September 2026 is Day 0
-  const DAY_ZERO_UTC = Date.UTC(2026, 8, 8, 0, 0, 0); // Month 8 = September
-  const STORAGE_KEY = '86_SPELLING_BEE_DATA_V1';
+  const CONFIG = {
+    puzzleCsvPath: './puzzles.csv',
+    anchorReleaseDate: '2026-09-08',
+    releaseTimeZone: 'Europe/London'
+  };
 
-  // Bartender Rank Progression Ladder Tiers (Percentages of max available points)
+  const STORAGE_KEY = '86_SPELLING_BEE_DATA_V2';
+
   const RANK_TIERS = [
     { name: 'Barback', minPct: 0 },
-    { name: 'Novice Pourer', minPct: 0.03 },
-    { name: 'Line Bartender', minPct: 0.08 },
-    { name: 'Mixologist', minPct: 0.16 },
-    { name: 'Senior Mixologist', minPct: 0.26 },
-    { name: 'Head Bartender', minPct: 0.40 },
-    { name: 'Beverage Director', minPct: 0.55 },
-    { name: 'Master Distiller', minPct: 0.70 },
+    { name: 'Novice', minPct: 0.03 },
+    { name: 'Pourer', minPct: 0.08 },
+    { name: 'Line Bartender', minPct: 0.16 },
+    { name: 'Mixologist', minPct: 0.26 },
+    { name: 'Senior Mixologist', minPct: 0.40 },
+    { name: 'Head Bartender', minPct: 0.55 },
+    { name: 'Beverage Director', minPct: 0.70 },
     { name: 'Cocktail Legend', minPct: 0.85 }
   ];
 
-  /* --------------------------------------------------------------------------
-     1. SOUND ENGINE (Web Audio API Synthesizer)
-     -------------------------------------------------------------------------- */
-  class CocktailSoundEngine {
+  class ReleaseEngine {
     constructor() {
-      this.ctx = null;
-      this.enabled = true;
+      this.status = 'INIT';
+      this.errorMessage = '';
+      this.currentRelease = null;
+      this.vaultReleases = [];
+      this.todayDateStr = '';
     }
 
-    init() {
-      if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        this.ctx = new AudioCtx();
+    async initialize() {
+      try {
+        const csvText = await this.fetchCSV();
+        const allRows = this.parseCSV(csvText);
+
+        const timestamp = await this.fetchAuthoritativeTime();
+        if (!timestamp) {
+          throw new Error("Today's puzzle could not be verified.");
+        }
+
+        this.todayDateStr = this.getUkDateString(timestamp);
+        this.classifyReleases(allRows, this.todayDateStr);
+        this.status = 'READY';
+
+      } catch (err) {
+        this.status = 'ERROR';
+        this.errorMessage = err.message || "Puzzle data could not be loaded.";
       }
-      if (this.ctx && this.ctx.state === 'suspended') {
-        this.ctx.resume();
+    }
+
+    async fetchCSV() {
+      const res = await fetch(`${CONFIG.puzzleCsvPath}?cb=${Date.now()}`);
+      if (!res.ok) throw new Error("Puzzle data could not be loaded.");
+      return await res.text();
+    }
+
+    async fetchAuthoritativeTime() {
+      try {
+        const res = await fetch(`./index.html?cb=${Date.now()}`, { method: 'GET', cache: 'no-store' });
+        const dateStr = res.headers.get('Date');
+        if (!dateStr) return null;
+        const ts = Date.parse(dateStr);
+        return isNaN(ts) ? null : ts;
+      } catch (e) {
+        return null;
       }
     }
 
-    playTap() {
-      if (!this.enabled) return;
-      this.init();
-      if (!this.ctx) return;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(320, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.04);
-      gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.04);
-    }
-
-    playShuffle() {
-      if (!this.enabled) return;
-      this.init();
-      if (!this.ctx) return;
-      const bufferSize = this.ctx.sampleRate * 0.07;
-      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.4));
-      }
-      const noise = this.ctx.createBufferSource();
-      noise.buffer = buffer;
-      const filter = this.ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.value = 2400;
-      const gain = this.ctx.createGain();
-      gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-      noise.connect(filter);
-      filter.connect(gain);
-      gain.connect(this.ctx.destination);
-      noise.start();
-    }
-
-    playSuccess(isPangram = false) {
-      if (!this.enabled) return;
-      this.init();
-      if (!this.ctx) return;
-      const notes = isPangram ? [523.25, 659.25, 783.99, 1046.50] : [587.33, 880.00];
-      notes.forEach((freq, idx) => {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
-        const startTime = this.ctx.currentTime + (idx * 0.07);
-        gain.gain.setValueAtTime(0, startTime);
-        gain.gain.linearRampToValueAtTime(isPangram ? 0.22 : 0.14, startTime + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.32);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(startTime);
-        osc.stop(startTime + 0.32);
+    getUkDateString(timestamp) {
+      const fmt = new Intl.DateTimeFormat('en-GB', {
+        timeZone: CONFIG.releaseTimeZone,
+        year: 'numeric', month: '2-digit', day: '2-digit'
       });
+      const parts = fmt.formatToParts(new Date(timestamp));
+      const y = parts.find(p => p.type === 'year').value;
+      const m = parts.find(p => p.type === 'month').value;
+      const d = parts.find(p => p.type === 'day').value;
+      return `${y}-${m}-${d}`;
     }
 
-    playError() {
-      if (!this.enabled) return;
-      this.init();
-      if (!this.ctx) return;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(140, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(90, this.ctx.currentTime + 0.12);
-      gain.gain.setValueAtTime(0.09, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.12);
-    }
-  }
+    parseCSV(text) {
+      const rows = [];
+      let currentRow = [];
+      let currentCell = '';
+      let inQuotes = false;
 
-  /* --------------------------------------------------------------------------
-     2. GARNISH BACKGROUND SYSTEM
-     Manages animated botanical garnish line-art with menu vs game density.
-     -------------------------------------------------------------------------- */
-  class GarnishBackgroundEngine {
-    constructor(container) {
-      this.container = container;
-      this.isGameActive = false;
-      this.maxNodes = 4; // Menu: 2-5, Game: 1-2
-      this.spawnTimer = null;
-      this.icons = [
-        // Citrus Wheel
-        `<svg viewBox="0 0 48 48" width="48" height="48"><circle cx="24" cy="24" r="21" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="1" fill="none" opacity="0.6"/><circle cx="24" cy="24" r="3" fill="currentColor"/><path d="M24 6 L24 21 M24 27 L24 42 M6 24 L21 24 M27 24 L42 24 M11 11 L22 22 M26 26 L37 37 M11 37 L22 26 M26 22 L37 11" stroke="currentColor" stroke-width="1.2"/></svg>`,
-        // Orange Peel Spiral
-        `<svg viewBox="0 0 48 48" width="48" height="48"><path d="M12 40 C 6 28, 14 14, 26 10 C 38 6, 42 18, 32 26 C 22 34, 18 42, 28 44 C 36 46, 42 36, 40 32" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M15 38 C 10 28, 16 17, 26 13 C 35 10, 39 19, 31 25" stroke="currentColor" stroke-width="0.9" fill="none" opacity="0.5"/></svg>`,
-        // Mint Sprig
-        `<svg viewBox="0 0 48 48" width="48" height="48"><path d="M24 44 C 24 28, 24 16, 24 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M24 30 C 14 26, 12 16, 24 20" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M24 22 C 34 18, 36 8, 24 12" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M24 14 C 18 10, 18 4, 24 4 C 30 4, 30 10, 24 14" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>`,
-        // Cherry Pair
-        `<svg viewBox="0 0 48 48" width="48" height="48"><circle cx="15" cy="34" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="33" cy="32" r="8" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M15 25.5 C 16 14, 21 8, 27 6 C 29 12, 32 18, 33 24" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M27 6 C 23 4, 20 6, 22 10 Z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>`,
-        // Olive on Skewer
-        `<svg viewBox="0 0 48 48" width="48" height="48"><line x1="6" y1="42" x2="42" y2="6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="24" cy="24" rx="8.5" ry="12.5" transform="rotate(45 24 24)" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="24" cy="24" r="3" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>`,
-        // Rosemary Sprig
-        `<svg viewBox="0 0 48 48" width="48" height="48"><line x1="24" y1="44" x2="24" y2="4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M24 38 L14 32 M24 38 L34 32 M24 28 L12 21 M24 28 L36 21 M24 18 L14 11 M24 18 L34 11 M24 8 L18 3 M24 8 L30 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`
-      ];
-      this.start();
-    }
-
-    setGameMode(isGame) {
-      this.isGameActive = isGame;
-      this.maxNodes = isGame ? 2 : 4;
-      // If entering game mode, prune excess nodes to focus on honeycomb
-      if (isGame && this.container) {
-        while (this.container.children.length > 2) {
-          this.container.removeChild(this.container.firstChild);
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        const nextC = text[i + 1];
+        if (inQuotes) {
+          if (c === '"' && nextC === '"') {
+            currentCell += '"';
+            i++;
+          } else if (c === '"') {
+            inQuotes = false;
+          } else {
+            currentCell += c;
+          }
+        } else {
+          if (c === '"') {
+            inQuotes = true;
+          } else if (c === ',') {
+            currentRow.push(currentCell);
+            currentCell = '';
+          } else if (c === '\n' || c === '\r') {
+            if (c === '\r' && nextC === '\n') i++;
+            currentRow.push(currentCell);
+            rows.push(currentRow);
+            currentRow = [];
+            currentCell = '';
+          } else {
+            currentCell += c;
+          }
         }
       }
+      if (currentCell || text[text.length - 1] === ',') currentRow.push(currentCell);
+      if (currentRow.length > 0) rows.push(currentRow);
+
+      if (rows.length === 0) throw new Error("Empty CSV");
+      const headers = rows[0].map(h => h.trim());
+      if (headers[0] !== 'release_date') throw new Error("First column must be release_date");
+
+      const data = [];
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (row.length === 1 && !row[0]) continue;
+        if (row.length !== headers.length) throw new Error(`Row ${i} length mismatch`);
+        const obj = {};
+        headers.forEach((h, idx) => { obj[h] = row[idx].trim(); });
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(obj.release_date)) throw new Error(`Invalid date format: ${obj.release_date}`);
+        data.push(obj);
+      }
+      return data;
     }
 
-    start() {
-      const scheduleNext = () => {
-        const interval = this.isGameActive ? (Math.random() * 4000 + 4000) : (Math.random() * 2500 + 2000);
-        this.spawnTimer = setTimeout(() => {
-          this.spawn();
-          scheduleNext();
-        }, interval);
+    classifyReleases(puzzles, todayDate) {
+      const currentRows = puzzles.filter(p => p.release_date === todayDate);
+      if (currentRows.length === 0) throw new Error("Today's puzzle is not available.");
+      if (currentRows.length > 1) throw new Error("Today's puzzle could not be verified.");
+
+      this.currentRelease = this.mapToGameFormat(currentRows[0]);
+      
+      this.vaultReleases = puzzles
+        .filter(p => p.release_date < todayDate)
+        .sort((a, b) => b.release_date.localeCompare(a.release_date))
+        .map(p => this.mapToGameFormat(p));
+    }
+
+    mapToGameFormat(row) {
+      return {
+        id: row.puzzle_id,
+        release_date: row.release_date,
+        title: row.title,
+        curriculumCategory: row.curriculum_category,
+        difficulty: row.difficulty,
+        centerLetter: row.center_letter,
+        outerLetters: [
+          row.outer_letter_1, row.outer_letter_2, row.outer_letter_3, 
+          row.outer_letter_4, row.outer_letter_5, row.outer_letter_6
+        ],
+        pangrams: row.pangrams.split(' ').filter(Boolean),
+        cocktailWords: row.cocktail_words.split(' ').filter(Boolean),
+        words: row.valid_words.split(' ').filter(Boolean)
       };
-      scheduleNext();
-    }
-
-    spawn() {
-      if (!this.container) return;
-      if (this.container.children.length >= this.maxNodes) return;
-
-      const node = document.createElement('div');
-      node.className = 'garnish-node';
-      const iconHtml = this.icons[Math.floor(Math.random() * this.icons.length)];
-      node.innerHTML = iconHtml;
-
-      const startLeft = Math.random() * 84 + 8; // 8% to 92%
-      const duration = Math.random() * 10 + 16; // 16s to 26s
-      const driftX = (Math.random() * 50 - 25);
-      const driftEnd = (Math.random() * 60 - 30);
-      const rot = Math.random() * 180;
-      const rotEnd = rot + (Math.random() * 180 + 90);
-
-      node.style.left = `${startLeft}%`;
-      node.style.setProperty('--drift-x', `${driftX}px`);
-      node.style.setProperty('--drift-end', `${driftEnd}px`);
-      node.style.setProperty('--rot', `${rot}deg`);
-      node.style.setProperty('--rot-end', `${rotEnd}deg`);
-      node.style.animationDuration = `${duration}s`;
-
-      node.addEventListener('animationend', () => {
-        if (node.parentNode) node.parentNode.removeChild(node);
-      });
-
-      this.container.appendChild(node);
     }
   }
 
-  /* --------------------------------------------------------------------------
-     3. LOCAL STORAGE & PERSISTENCE
-     -------------------------------------------------------------------------- */
   class StorageManager {
     static getInitialData() {
       return {
-        version: 1,
+        version: 2,
         soundEnabled: true,
         stats: {
           gamesPlayed: 0,
@@ -222,8 +181,7 @@
           maxStreak: 0,
           lastPlayedDate: null
         },
-        puzzleProgress: {}, // Keyed by puzzle ID
-        releasedSchedule: {} // Preserves day-to-puzzle id mapping
+        puzzleProgress: {}
       };
     }
 
@@ -232,10 +190,9 @@
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return this.getInitialData();
         const parsed = JSON.parse(raw);
-        if (!parsed.version || parsed.version < 1) return this.getInitialData();
+        if (!parsed.version || parsed.version < 2) return this.getInitialData();
         return Object.assign(this.getInitialData(), parsed);
       } catch (err) {
-        console.warn('Storage read issue, initializing defaults:', err);
         return this.getInitialData();
       }
     }
@@ -244,77 +201,18 @@
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       } catch (err) {
-        console.warn('Storage write failed:', err);
+        // Silent block for persistence errors
       }
     }
   }
 
-  /* --------------------------------------------------------------------------
-     4. DETERMINISTIC DAILY SCHEDULER (Day 0 = 8 September 2026)
-     -------------------------------------------------------------------------- */
-  class DailyScheduler {
-    static getDayIndex(date = new Date()) {
-      const targetUtc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-      const diffMs = targetUtc - DAY_ZERO_UTC;
-      const dayNum = Math.floor(diffMs / 86400000);
-      // Pre-launch days are safely clamped to Day 0
-      return Math.max(0, dayNum);
-    }
-
-    static getPuzzleForDay(dayIndex, puzzles, savedSchedule = {}) {
-      if (!puzzles || puzzles.length === 0) return null;
-      // If historical schedule has this day locked, honor it
-      if (savedSchedule[dayIndex]) {
-        const found = puzzles.find(p => p.id === savedSchedule[dayIndex]);
-        if (found) return found;
-      }
-      // Linear mapping if within bounds, otherwise stable wrap
-      const index = dayIndex < puzzles.length ? dayIndex : (dayIndex % puzzles.length);
-      return puzzles[index];
-    }
-
-    static getTodayPuzzle(puzzles, savedSchedule = {}) {
-      const dayIndex = this.getDayIndex();
-      const puzzle = this.getPuzzleForDay(dayIndex, puzzles, savedSchedule);
-      return {
-        puzzle,
-        dayIndex,
-        isToday: true
-      };
-    }
-
-    static getReleasedVaultPuzzles(puzzles, savedSchedule = {}) {
-      const todayIndex = this.getDayIndex();
-      // On Day 0 (8 Sep 2026), Vault has exactly ZERO released puzzles.
-      // Day 1 will have 1 puzzle (Day 0).
-      if (todayIndex <= 0) return [];
-
-      const vaultList = [];
-      for (let d = todayIndex - 1; d >= 0; d--) {
-        const puzzle = this.getPuzzleForDay(d, puzzles, savedSchedule);
-        if (puzzle) {
-          vaultList.push({
-            puzzle,
-            dayIndex: d,
-            isToday: false
-          });
-        }
-      }
-      return vaultList;
-    }
-  }
-
-  /* --------------------------------------------------------------------------
-     5. MAIN COCKTAIL SPELLING BEE GAME APPLICATION
-     -------------------------------------------------------------------------- */
   class CocktailBeeApp {
     constructor() {
-      this.sound = new CocktailSoundEngine();
       this.state = StorageManager.load();
-      this.sound.enabled = this.state.soundEnabled;
-
-      this.currentPuzzle = null;
-      this.currentDayIndex = 0;
+      this.soundEnabled = this.state.soundEnabled;
+      
+      this.releaseEngine = new ReleaseEngine();
+      this.activePuzzle = null;
       this.isCurrentPuzzleToday = true;
 
       this.activeInput = '';
@@ -325,27 +223,19 @@
       this.toastTimeout = null;
 
       this.initDom();
-      this.garnishEngine = new GarnishBackgroundEngine(this.dom.garnishStage);
       this.initEventListeners();
-
-      // Lock current release schedule in storage for absolute historical continuity
-      this.lockReleaseSchedule();
-
-      // Refresh Menu View initially
-      this.renderMenuTodayCard();
-      this.updateSoundDisplay();
-
-      // Start midnight observer
-      this.startMidnightObserver();
+      
+      this.boot();
     }
 
     initDom() {
       this.dom = {
-        garnishStage: document.getElementById('garnishStage'),
+        errorScreen: document.getElementById('errorScreen'),
+        errorMessageText: document.getElementById('errorMessageText'),
+        retryBtn: document.getElementById('retryBtn'),
         mainMenuScreen: document.getElementById('mainMenuScreen'),
         gameplayScreen: document.getElementById('gameplayScreen'),
 
-        // Main Menu
         menuTodayBadge: document.getElementById('menuTodayBadge'),
         menuDiffPill: document.getElementById('menuDiffPill'),
         menuThemeTitle: document.getElementById('menuThemeTitle'),
@@ -353,7 +243,6 @@
         menuStatusText: document.getElementById('menuStatusText'),
         menuStatusRank: document.getElementById('menuStatusRank'),
         playTodayBtn: document.getElementById('playTodayBtn'),
-        playBtnText: document.getElementById('playBtnText'),
         openVaultMenuBtn: document.getElementById('openVaultMenuBtn'),
         vaultArchiveCountBadge: document.getElementById('vaultArchiveCountBadge'),
         menuSoundBtn: document.getElementById('menuSoundBtn'),
@@ -362,7 +251,6 @@
         menuHowToPlayBtn: document.getElementById('menuHowToPlayBtn'),
         menuStatsBtn: document.getElementById('menuStatsBtn'),
 
-        // Gameplay Screen
         backToMenuBtn: document.getElementById('backToMenuBtn'),
         gameEditionBadge: document.getElementById('gameEditionBadge'),
         gameSoundBtn: document.getElementById('gameSoundBtn'),
@@ -402,7 +290,6 @@
         foundPreview: document.getElementById('foundPreview'),
         foundChipsGrid: document.getElementById('foundChipsGrid'),
 
-        // Modals
         vaultModal: document.getElementById('vaultModal'),
         vaultListContainer: document.getElementById('vaultListContainer'),
         rulesModal: document.getElementById('rulesModal'),
@@ -418,14 +305,14 @@
     }
 
     initEventListeners() {
-      // Menu Actions
+      this.dom.retryBtn.addEventListener('click', () => this.boot());
+
       this.dom.playTodayBtn.addEventListener('click', () => {
-        this.sound.playTap();
-        this.startTodayGame();
+        this.mountPuzzle(this.releaseEngine.currentRelease, true);
+        this.showScreen('game');
       });
 
       this.dom.openVaultMenuBtn.addEventListener('click', () => {
-        this.sound.playTap();
         this.renderVaultArchive();
         this.openModal(this.dom.vaultModal);
       });
@@ -445,31 +332,24 @@
         this.openModal(this.dom.statsModal);
       });
 
-      this.dom.backToMenuBtn.addEventListener('click', () => {
-        this.sound.playTap();
-        this.showScreen('menu');
-      });
+      this.dom.backToMenuBtn.addEventListener('click', () => this.showScreen('menu'));
 
-      // Modal Close Elements
       document.querySelectorAll('[data-close]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', () => {
           const targetId = btn.getAttribute('data-close');
           const modal = document.getElementById(targetId);
           if (modal) this.closeModal(modal);
         });
       });
 
-      // Accordion Drawer
       this.dom.toggleDrawerBtn.addEventListener('click', () => {
         const isExpanded = this.dom.toggleDrawerBtn.getAttribute('aria-expanded') === 'true';
         this.dom.toggleDrawerBtn.setAttribute('aria-expanded', String(!isExpanded));
         this.dom.drawerContent.hidden = isExpanded;
-        this.sound.playTap();
       });
 
-      // Hive letter taps
       this.dom.cellCenter.addEventListener('click', () => {
-        if (this.currentPuzzle) this.handleLetterInput(this.currentPuzzle.centerLetter);
+        if (this.activePuzzle) this.handleLetterInput(this.activePuzzle.centerLetter);
       });
       this.dom.outerCells.forEach(cell => {
         cell.addEventListener('click', () => {
@@ -478,12 +358,10 @@
         });
       });
 
-      // Controls
       this.dom.deleteBtn.addEventListener('click', () => this.handleDelete());
       this.dom.shuffleBtn.addEventListener('click', () => this.handleShuffle());
       this.dom.enterBtn.addEventListener('click', () => this.handleWordSubmit());
 
-      // Physical Keyboard Handlers
       window.addEventListener('keydown', (e) => {
         if (this.dom.gameplayScreen.hidden) return;
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -510,79 +388,63 @@
       });
     }
 
-    lockReleaseSchedule() {
-      const todayIndex = DailyScheduler.getDayIndex();
-      const puzzles = window.COCKTAIL_SPELLING_BEE_PUZZLES;
-      if (!puzzles) return;
-      if (!this.state.releasedSchedule) this.state.releasedSchedule = {};
-
-      for (let d = 0; d <= todayIndex; d++) {
-        if (!this.state.releasedSchedule[d]) {
-          const p = DailyScheduler.getPuzzleForDay(d, puzzles, this.state.releasedSchedule);
-          if (p) this.state.releasedSchedule[d] = p.id;
-        }
+    async boot() {
+      this.showScreen('loading');
+      await this.releaseEngine.initialize();
+      
+      if (this.releaseEngine.status === 'ERROR') {
+        this.dom.errorMessageText.textContent = this.releaseEngine.errorMessage;
+        this.showScreen('error');
+      } else {
+        this.updateSoundDisplay();
+        this.renderMenuTodayCard();
+        this.showScreen('menu');
       }
-      StorageManager.save(this.state);
+    }
+
+    showScreen(screen) {
+      this.dom.errorScreen.hidden = true;
+      this.dom.mainMenuScreen.hidden = true;
+      this.dom.gameplayScreen.hidden = true;
+
+      if (screen === 'error') this.dom.errorScreen.hidden = false;
+      if (screen === 'menu') {
+        this.renderMenuTodayCard();
+        this.dom.mainMenuScreen.hidden = false;
+      }
+      if (screen === 'game') this.dom.gameplayScreen.hidden = false;
+    }
+
+    openModal(modal) {
+      if (modal) modal.hidden = false;
+    }
+
+    closeModal(modal) {
+      if (modal) modal.hidden = true;
     }
 
     toggleSound() {
-      this.sound.enabled = !this.sound.enabled;
-      this.state.soundEnabled = this.sound.enabled;
+      this.soundEnabled = !this.soundEnabled;
+      this.state.soundEnabled = this.soundEnabled;
       StorageManager.save(this.state);
       this.updateSoundDisplay();
-      if (this.sound.enabled) this.sound.playTap();
     }
 
     updateSoundDisplay() {
-      const icon = this.sound.enabled ? '🔊' : '🔇';
-      const label = this.sound.enabled ? 'SOUND ON' : 'SOUND OFF';
+      const icon = this.soundEnabled ? '🔊' : '🔇';
+      const label = this.soundEnabled ? 'SOUND ON' : 'SOUND OFF';
       this.dom.menuSoundIcon.textContent = icon;
       this.dom.menuSoundLabel.textContent = label;
       this.dom.gameSoundIcon.textContent = icon;
     }
 
-    showScreen(screen) {
-      if (screen === 'menu') {
-        this.renderMenuTodayCard();
-        this.dom.mainMenuScreen.hidden = false;
-        this.dom.gameplayScreen.hidden = true;
-        this.garnishEngine.setGameMode(false);
-      } else {
-        this.dom.mainMenuScreen.hidden = true;
-        this.dom.gameplayScreen.hidden = false;
-        this.garnishEngine.setGameMode(true);
-      }
-    }
-
-    openModal(modal) {
-      if (!modal) return;
-      modal.hidden = false;
-      this.sound.playTap();
-    }
-
-    closeModal(modal) {
-      if (!modal) return;
-      modal.hidden = true;
-      this.sound.playTap();
-    }
-
-    /* --------------------------------------------------------------------------
-       6. MAIN MENU RENDERING
-       -------------------------------------------------------------------------- */
     renderMenuTodayCard() {
-      const puzzles = window.COCKTAIL_SPELLING_BEE_PUZZLES;
-      if (!puzzles || puzzles.length === 0) return;
-
-      const todayMeta = DailyScheduler.getTodayPuzzle(puzzles, this.state.releasedSchedule);
-      const puzzle = todayMeta.puzzle;
-      const dayIndex = todayMeta.dayIndex;
-
-      this.dom.menuTodayBadge.textContent = dayIndex === 0 ? "TODAY'S SERVICE (DAY 0)" : `TODAY'S SERVICE • DAY #${dayIndex}`;
+      const puzzle = this.releaseEngine.currentRelease;
       this.dom.menuDiffPill.textContent = puzzle.difficulty.toUpperCase();
       this.dom.menuThemeTitle.textContent = puzzle.title;
       this.dom.menuCurriculumCategory.textContent = puzzle.curriculumCategory;
 
-      const saved = this.state.puzzleProgress[puzzle.id];
+      const saved = this.state.puzzleProgress[puzzle.release_date];
       const maxPts = this.computeMaxScore(puzzle);
 
       if (saved && saved.foundWords && saved.foundWords.length > 0) {
@@ -590,46 +452,33 @@
         const rank = this.computeRank(score, maxPts);
         this.dom.menuStatusText.textContent = `${saved.foundWords.length} words poured • ${score} pts`;
         this.dom.menuStatusRank.textContent = rank.name;
-        this.dom.playBtnText.textContent = 'RESUME SHIFT';
+        this.dom.playTodayBtn.textContent = 'RESUME';
       } else {
         this.dom.menuStatusText.textContent = 'Ready for service';
         this.dom.menuStatusRank.textContent = 'Barback';
-        this.dom.playBtnText.textContent = 'START SHIFT';
+        this.dom.playTodayBtn.textContent = 'PLAY';
       }
 
-      // Vault archive count
-      const releasedVault = DailyScheduler.getReleasedVaultPuzzles(puzzles, this.state.releasedSchedule);
-      this.dom.vaultArchiveCountBadge.textContent = `${releasedVault.length} Edition${releasedVault.length === 1 ? '' : 's'}`;
+      this.dom.vaultArchiveCountBadge.textContent = this.releaseEngine.vaultReleases.length;
     }
 
-    startTodayGame() {
-      const puzzles = window.COCKTAIL_SPELLING_BEE_PUZZLES;
-      const todayMeta = DailyScheduler.getTodayPuzzle(puzzles, this.state.releasedSchedule);
-      this.mountPuzzle(todayMeta.puzzle, todayMeta.dayIndex, true);
-      this.showScreen('game');
-    }
-
-    /* --------------------------------------------------------------------------
-       7. ACTIVE GAME SETUP & RENDERING
-       -------------------------------------------------------------------------- */
-    mountPuzzle(puzzle, dayIndex, isToday = false) {
-      this.currentPuzzle = puzzle;
-      this.currentDayIndex = dayIndex;
+    mountPuzzle(puzzle, isToday = false) {
+      this.activePuzzle = puzzle;
       this.isCurrentPuzzleToday = isToday;
       this.activeInput = '';
 
       this.maxPossibleScore = this.computeMaxScore(puzzle);
-
-      // Load progress
-      const saved = this.state.puzzleProgress[puzzle.id] || { foundWords: [], score: 0 };
+      const saved = this.state.puzzleProgress[puzzle.release_date] || { foundWords: [], score: 0 };
       this.foundWords = [...saved.foundWords];
       this.score = this.calculateWordsScore(this.foundWords, puzzle);
 
-      // Shuffle outer letters initially
       this.outerLettersShuffled = [...puzzle.outerLetters];
       this.shuffleArray(this.outerLettersShuffled);
 
-      this.renderGameHeader();
+      this.dom.gameEditionBadge.textContent = isToday ? 'TODAY' : puzzle.release_date;
+      this.dom.gameThemeTitle.textContent = puzzle.title;
+      this.dom.gameCategoryTitle.textContent = puzzle.curriculumCategory;
+
       this.renderHiveCells();
       this.renderInputDisplay();
       this.renderRankLadder();
@@ -668,18 +517,10 @@
       return currentTier;
     }
 
-    renderGameHeader() {
-      this.dom.gameEditionBadge.textContent = this.isCurrentPuzzleToday ? 'TODAY' : `DAY #${this.currentDayIndex}`;
-      this.dom.gameThemeTitle.textContent = this.currentPuzzle.title;
-      this.dom.gameCategoryTitle.textContent = this.currentPuzzle.curriculumCategory;
-    }
-
     renderHiveCells() {
-      // Center cell
-      this.dom.cellCenter.setAttribute('data-letter', this.currentPuzzle.centerLetter);
-      this.dom.cellCenter.querySelector('.cell-letter').textContent = this.currentPuzzle.centerLetter;
+      this.dom.cellCenter.setAttribute('data-letter', this.activePuzzle.centerLetter);
+      this.dom.cellCenter.querySelector('.cell-letter').textContent = this.activePuzzle.centerLetter;
 
-      // Outer cells
       this.dom.outerCells.forEach((cell, idx) => {
         const letter = this.outerLettersShuffled[idx];
         cell.setAttribute('data-letter', letter);
@@ -700,7 +541,7 @@
         const char = this.activeInput[i];
         const span = document.createElement('span');
         span.className = 'word-char';
-        if (char === this.currentPuzzle.centerLetter) {
+        if (char === this.activePuzzle.centerLetter) {
           span.classList.add('char-center');
         }
         span.textContent = char;
@@ -712,33 +553,26 @@
       this.dom.wordInputDisplay.appendChild(cursor);
     }
 
-    /* --------------------------------------------------------------------------
-       8. INPUT HANDLING & WORD SUBMISSION
-       -------------------------------------------------------------------------- */
     handleLetterInput(letter) {
-      const allowed = [this.currentPuzzle.centerLetter, ...this.currentPuzzle.outerLetters];
+      const allowed = [this.activePuzzle.centerLetter, ...this.activePuzzle.outerLetters];
       if (!allowed.includes(letter)) {
         this.showToast('Bad letter', true);
-        this.sound.playError();
         return;
       }
       if (this.activeInput.length >= 19) return;
       this.activeInput += letter;
-      this.sound.playTap();
       this.renderInputDisplay();
     }
 
     handleDelete() {
       if (this.activeInput.length === 0) return;
       this.activeInput = this.activeInput.slice(0, -1);
-      this.sound.playTap();
       this.renderInputDisplay();
     }
 
     handleShuffle() {
       this.shuffleArray(this.outerLettersShuffled);
       this.renderHiveCells();
-      this.sound.playShuffle();
     }
 
     shuffleArray(arr) {
@@ -752,32 +586,23 @@
       const word = this.activeInput.trim().toUpperCase();
 
       if (word.length < 4) {
-        this.showToast('Too short (min 4 letters)', true);
-        this.sound.playError();
+        this.showToast('Too short', true);
         return;
       }
-
-      if (!word.includes(this.currentPuzzle.centerLetter)) {
-        this.showToast(`Missing center letter (${this.currentPuzzle.centerLetter})`, true);
-        this.sound.playError();
+      if (!word.includes(this.activePuzzle.centerLetter)) {
+        this.showToast('Missing center letter', true);
         return;
       }
-
       if (this.foundWords.includes(word)) {
         this.showToast('Already poured', true);
-        this.sound.playError();
+        return;
+      }
+      if (!this.activePuzzle.words.includes(word)) {
+        this.showToast('Not on the menu', true);
         return;
       }
 
-      if (!this.currentPuzzle.words.includes(word)) {
-        this.showToast('Not on the cocktail menu', true);
-        this.sound.playError();
-        return;
-      }
-
-      // Valid word scored
-      const isPangram = this.currentPuzzle.pangrams.includes(word);
-      const isCocktailTerm = this.currentPuzzle.cocktailWords && this.currentPuzzle.cocktailWords.includes(word);
+      const isPangram = this.activePuzzle.pangrams.includes(word);
       const pts = (word.length === 4 ? 1 : word.length) + (isPangram ? 7 : 0);
 
       this.foundWords.push(word);
@@ -788,15 +613,9 @@
       this.updateCareerStats(pts, isPangram);
 
       if (isPangram) {
-        this.showToast(`★ PANGRAM! +${pts} PTS! 🍸`, false, true);
-        this.sound.playSuccess(true);
-      } else if (isCocktailTerm) {
-        this.showToast(`Cocktail Spec! +${pts} pts`, false, false);
-        this.sound.playSuccess(false);
+        this.showToast(`PANGRAM! +${pts} PTS!`, false, true);
       } else {
-        const praise = pts >= 7 ? 'Brilliant!' : pts >= 5 ? 'Great!' : 'Good!';
-        this.showToast(`${praise} +${pts}`, false, false);
-        this.sound.playSuccess(false);
+        this.showToast(`+${pts} pts`, false, false);
       }
 
       this.renderInputDisplay();
@@ -809,20 +628,16 @@
       this.dom.toastMessage.textContent = message;
       this.dom.toastMessage.className = 'toast-message show';
 
-      if (isError) {
-        this.dom.toastMessage.classList.add('toast-error');
-      } else if (isPangram) {
-        this.dom.toastMessage.classList.add('toast-pangram');
-      }
+      if (isError) this.dom.toastMessage.style.background = '#b71c1c';
+      else if (isPangram) this.dom.toastMessage.style.background = '#ffd700';
+      else this.dom.toastMessage.style.background = 'var(--gold-sheen-2)';
 
       this.toastTimeout = setTimeout(() => {
         this.dom.toastMessage.className = 'toast-message';
+        this.dom.toastMessage.style.background = '';
       }, 1900);
     }
 
-    /* --------------------------------------------------------------------------
-       9. RANK LADDER & FOUND WORDS
-       -------------------------------------------------------------------------- */
     renderRankLadder() {
       const currentRank = this.computeRank(this.score, this.maxPossibleScore);
       this.dom.currentRankLabel.textContent = currentRank.name;
@@ -839,9 +654,7 @@
         pip.className = 'rank-pip';
         const leftPercent = tier.minPct * 100;
         pip.style.left = `${leftPercent}%`;
-        if (pct >= leftPercent) {
-          pip.classList.add('reached');
-        }
+        if (pct >= leftPercent) pip.classList.add('reached');
         this.dom.rankMarkers.appendChild(pip);
       });
     }
@@ -850,36 +663,30 @@
       this.dom.foundCount.textContent = this.foundWords.length;
       if (this.foundWords.length === 0) {
         this.dom.foundPreview.textContent = 'None yet';
-        this.dom.foundChipsGrid.innerHTML = '<span style="color:var(--text-dim);font-size:0.8rem;">No drinks poured yet. Spell your first word!</span>';
+        this.dom.foundChipsGrid.innerHTML = '<span>No drinks poured yet.</span>';
         return;
       }
 
-      const recent = this.foundWords.slice(-3).reverse().join(', ');
-      this.dom.foundPreview.textContent = recent;
-
+      this.dom.foundPreview.textContent = this.foundWords.slice(-3).reverse().join(', ');
+      
       const sorted = [...this.foundWords].sort();
       this.dom.foundChipsGrid.innerHTML = '';
-
+      
       sorted.forEach(w => {
-        const isPangram = this.currentPuzzle.pangrams.includes(w);
-        const isCocktail = this.currentPuzzle.cocktailWords && this.currentPuzzle.cocktailWords.includes(w);
+        const isPangram = this.activePuzzle.pangrams.includes(w);
         const chip = document.createElement('span');
         chip.className = 'found-chip';
-        if (isPangram) chip.classList.add('chip-pangram');
-        if (isCocktail) chip.classList.add('chip-cocktail');
-
-        let badge = '';
-        if (isPangram) badge = ' <span class="chip-badge">★ PANGRAM</span>';
-        else if (isCocktail) badge = ' <span class="chip-badge">🍸</span>';
-
-        chip.innerHTML = `${w}${badge}`;
+        chip.textContent = w;
+        if (isPangram) {
+          chip.style.borderColor = '#ffd700';
+          chip.style.color = '#ffd700';
+        }
         this.dom.foundChipsGrid.appendChild(chip);
       });
     }
 
     saveCurrentProgress() {
-      this.state.puzzleProgress[this.currentPuzzle.id] = {
-        dayIndex: this.currentDayIndex,
+      this.state.puzzleProgress[this.activePuzzle.release_date] = {
         foundWords: this.foundWords,
         score: this.score,
         lastPlayedAt: Date.now()
@@ -888,7 +695,7 @@
     }
 
     updateCareerStats(pointsEarned, isPangram) {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = this.releaseEngine.todayDateStr;
       const stats = this.state.stats;
 
       stats.wordsFoundTotal += 1;
@@ -902,17 +709,12 @@
           const lastDate = new Date(stats.lastPlayedDate);
           const currDate = new Date(todayStr);
           const diffDays = Math.round((currDate - lastDate) / 86400000);
-          if (diffDays === 1) {
-            stats.currentStreak += 1;
-          } else if (diffDays > 1) {
-            stats.currentStreak = 1;
-          }
+          if (diffDays === 1) stats.currentStreak += 1;
+          else if (diffDays > 1) stats.currentStreak = 1;
         }
         stats.lastPlayedDate = todayStr;
         stats.gamesPlayed += 1;
-        if (stats.currentStreak > stats.maxStreak) {
-          stats.maxStreak = stats.currentStreak;
-        }
+        if (stats.currentStreak > stats.maxStreak) stats.maxStreak = stats.currentStreak;
       }
       StorageManager.save(this.state);
     }
@@ -923,34 +725,27 @@
       this.dom.statWords.textContent = stats.wordsFoundTotal;
       this.dom.statPangrams.textContent = stats.pangramsFoundTotal;
       this.dom.statPoints.textContent = stats.totalPoints;
-      this.dom.statCurrentStreak.textContent = `${stats.currentStreak} Days`;
-      this.dom.statMaxStreak.textContent = `${stats.maxStreak} Days`;
+      this.dom.statCurrentStreak.textContent = stats.currentStreak;
+      this.dom.statMaxStreak.textContent = stats.maxStreak;
     }
 
-    /* --------------------------------------------------------------------------
-       10. CELLAR VAULT ARCHIVE
-       -------------------------------------------------------------------------- */
     renderVaultArchive() {
-      const puzzles = window.COCKTAIL_SPELLING_BEE_PUZZLES;
-      const released = DailyScheduler.getReleasedVaultPuzzles(puzzles, this.state.releasedSchedule);
+      const releases = this.releaseEngine.vaultReleases;
       this.dom.vaultListContainer.innerHTML = '';
 
-      if (released.length === 0) {
-        const emptyNotice = document.createElement('div');
-        emptyNotice.className = 'vault-empty-notice';
-        emptyNotice.innerHTML = `
-          <p><strong>The Cellar Vault is empty on Opening Day.</strong></p>
-          <p style="margin-top:6px;font-size:0.75rem;color:var(--text-dim);">Previous daily editions will be archived here as each service day concludes.</p>
-        `;
-        this.dom.vaultListContainer.appendChild(emptyNotice);
+      if (releases.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'vault-empty-notice';
+        empty.textContent = 'Vault is empty.';
+        this.dom.vaultListContainer.appendChild(empty);
         return;
       }
 
-      released.forEach(item => {
-        const saved = this.state.puzzleProgress[item.puzzle.id];
-        const wordsFoundCount = saved ? saved.foundWords.length : 0;
-        const totalWords = item.puzzle.words.length;
-        const isDone = wordsFoundCount >= totalWords;
+      releases.forEach(puzzle => {
+        const saved = this.state.puzzleProgress[puzzle.release_date];
+        const wordsFound = saved ? saved.foundWords.length : 0;
+        const total = puzzle.words.length;
+        const isDone = wordsFound >= total;
 
         const card = document.createElement('div');
         card.className = 'vault-item-card';
@@ -958,46 +753,26 @@
         card.innerHTML = `
           <div class="vault-meta">
             <div class="vault-edition-row">
-              <span class="vault-day-num">DAY #${item.dayIndex}</span>
-              <span class="card-diff-pill">${item.puzzle.difficulty.toUpperCase()}</span>
+              <span class="vault-day-num">${puzzle.release_date}</span>
             </div>
-            <span class="vault-theme-title">${item.puzzle.title}</span>
+            <span class="vault-theme-title">${puzzle.title}</span>
           </div>
-          <div class="vault-status-badge ${isDone ? 'badge-done' : ''}">
-            ${wordsFoundCount > 0 ? `${wordsFoundCount} / ${totalWords} Words` : 'Unplayed'}
+          <div class="vault-status-badge">
+            ${wordsFound > 0 ? `${wordsFound} / ${total}` : 'Unplayed'}
           </div>
         `;
 
         card.addEventListener('click', () => {
           this.closeModal(this.dom.vaultModal);
-          this.mountPuzzle(item.puzzle, item.dayIndex, false);
+          this.mountPuzzle(puzzle, false);
           this.showScreen('game');
         });
 
         this.dom.vaultListContainer.appendChild(card);
       });
     }
-
-    /* --------------------------------------------------------------------------
-       11. MIDNIGHT ROLLOVER OBSERVER
-       -------------------------------------------------------------------------- */
-    startMidnightObserver() {
-      let recordedDay = DailyScheduler.getDayIndex();
-      setInterval(() => {
-        const currentDay = DailyScheduler.getDayIndex();
-        if (currentDay !== recordedDay) {
-          recordedDay = currentDay;
-          this.lockReleaseSchedule();
-          this.renderMenuTodayCard();
-          if (!this.dom.gameplayScreen.hidden) {
-            this.showToast('New service day ready in the Cellar Vault!', false);
-          }
-        }
-      }, 30000);
-    }
   }
 
-  // Initialize once DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
     window.cocktailBeeApp = new CocktailBeeApp();
   });
