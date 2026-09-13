@@ -5,7 +5,10 @@
   const STORAGE_KEY = 'spelling_bee_save_v2';
   const CSV_PATH = './puzzles.csv';
   
-  // PLACEHOLDER: Replace '#home' with supplied main-page destination URL when provided
+  // Authoritative Release Configuration
+  const RELEASE_TIMEZONE = 'Europe/London';
+  
+  // PLACEHOLDER: Replace with supplied main-page destination URL when provided
   const HOME_URL = 'https://tileworksgamesstudio.github.io/86/';
 
   const RANKS = [
@@ -21,7 +24,7 @@
     { name: 'Queen Bee', pct: 1.00 }
   ];
 
-  // Built-in fallback puzzle dataset (Guarantees zero crashes even without server or CSV)
+  // Built-in fallback puzzle dataset (Guarantees zero crashes if CSV is missing)
   const FALLBACK_PUZZLES = [
     {
       date: '2024-05-15',
@@ -149,29 +152,17 @@
      Lightweight vector silhouettes drifting gracefully through amber ambiance.
      ========================================================================== */
   const GARNISH_SVGS = [
-    // 1. Orange twist
     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 30 C 14 12, 28 10, 24 24 C 20 34, 34 26, 32 12"/></svg>`,
-    // 2. Lemon twist
     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 22 C 16 6, 26 12, 22 28 C 18 38, 32 30, 34 16"/></svg>`,
-    // 3. Lime wheel
     `<svg viewBox="0 0 40 40" stroke="currentColor" fill="none" stroke-width="1.8"><circle cx="20" cy="20" r="16"/><circle cx="20" cy="20" r="13" stroke-dasharray="2 3"/><path d="M20 7 v26 M7 20 h26 M11 11 l18 18 M29 11 l-18 18"/></svg>`,
-    // 4. Lemon wheel
     `<svg viewBox="0 0 40 40" stroke="currentColor" fill="none" stroke-width="1.8"><circle cx="20" cy="20" r="16.5"/><circle cx="20" cy="20" r="12"/><path d="M20 8 v24 M8 20 h24 M11.5 11.5 l17 17 M28.5 11.5 l-17 17"/></svg>`,
-    // 5. Dehydrated orange wheel
     `<svg viewBox="0 0 40 40" stroke="currentColor" fill="none" stroke-width="1.6"><circle cx="20" cy="20" r="17" stroke-width="2.2"/><circle cx="20" cy="20" r="13.5"/><circle cx="20" cy="20" r="3" fill="currentColor"/><path d="M20 7 v6 M20 27 v6 M7 20 h6 M27 20 h6 M10.8 10.8 l4.2 4.2 M25 25 l4.2 4.2 M29.2 10.8 l-4.2 4.2 M15 25 l-4.2 4.2"/></svg>`,
-    // 6. Dehydrated lemon wheel
     `<svg viewBox="0 0 40 40" stroke="currentColor" fill="none" stroke-width="1.6"><circle cx="20" cy="20" r="16.5" stroke-dasharray="3 1.5"/><circle cx="20" cy="20" r="11.5"/><path d="M20 9 v22 M9 20 h22 M12 12 l16 16 M28 12 l-16 16"/></svg>`,
-    // 7. Cocktail cherry
     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="26" r="9" fill="currentColor" fill-opacity="0.25"/><path d="M17 17 C 19 8, 28 6, 32 4" stroke-linecap="round"/><path d="M30 5 C 32 7, 33 11, 29 11"/></svg>`,
-    // 8. Maraschino cherry pair
     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="13" cy="27" r="7.5" fill="currentColor" fill-opacity="0.25"/><circle cx="27" cy="25" r="7.5" fill="currentColor" fill-opacity="0.25"/><path d="M14 20 C 17 10, 21 6, 21 4 C 22 8, 25 12, 27 18" stroke-linecap="round"/></svg>`,
-    // 9. Mint sprig
     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 34 V10" stroke-linecap="round"/><path d="M20 26 C 14 24, 12 16, 20 18 C 28 16, 26 24, 20 26" fill="currentColor" fill-opacity="0.2"/><path d="M20 18 C 12 16, 12 8, 20 10 C 28 8, 28 16, 20 18" fill="currentColor" fill-opacity="0.2"/><path d="M20 10 C 16 4, 24 4, 20 10"/></svg>`,
-    // 10. Rosemary sprig
     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M20 36 V4"/><path d="M20 30 L11 26 M20 27 L29 23 M20 22 L12 18 M20 19 L28 15 M20 14 L13 10 M20 11 L27 7 M20 6 L15 3 M20 5 L25 3"/></svg>`,
-    // 11. Green olive on pick
     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="6" y1="34" x2="34" y2="6" stroke-linecap="round"/><ellipse cx="20" cy="20" rx="9" ry="12" transform="rotate(-45 20 20)" fill="currentColor" fill-opacity="0.25"/><circle cx="20" cy="20" r="3.5" fill="currentColor"/></svg>`,
-    // 12. Cucumber ribbon
     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 12 C 16 8, 14 26, 24 22 C 30 20, 31 32, 34 30" /><path d="M8 17 C 16 13, 14 31, 24 27 C 30 25, 31 37, 34 35" opacity="0.6"/></svg>`
   ];
 
@@ -187,7 +178,6 @@
     }
 
     start() {
-      // Seed initial garnishes staggered
       const initialCount = Math.min(6, this.maxGarnishes);
       for (let i = 0; i < initialCount; i++) {
         setTimeout(() => this.spawn(), i * 1400);
@@ -208,7 +198,6 @@
       const iconIdx = Math.floor(Math.random() * GARNISH_SVGS.length);
       garnish.innerHTML = GARNISH_SVGS[iconIdx];
 
-      // Depth layers: Distant, Middle, Near
       const depthRoll = Math.random();
       let depthClass = 'garnish-depth-distant';
       let size = 28;
@@ -265,6 +254,7 @@
   class SpellingBeeApp {
     constructor() {
       this.puzzles = [];
+      this.authoritativeDate = null; // YYYY-MM-DD derived from server instant
       this.dailyPuzzle = null;
       this.activePuzzle = null;
       this.outerLetters = [];
@@ -360,7 +350,7 @@
       // Navigation: Main Menu Card Actions
       this.dom.btnPlayDaily.addEventListener('click', () => {
         this.audio.playGlassTap(640);
-        if (this.dailyPuzzle) {
+        if (this.dailyPuzzle && this.isPuzzleReleased(this.dailyPuzzle)) {
           this.loadPuzzle(this.dailyPuzzle);
           this.switchView('game');
         }
@@ -493,16 +483,70 @@
       });
     }
 
+    /**
+     * Resolves the calendar date (YYYY-MM-DD) for a given instant in an explicit IANA timezone.
+     */
+    getCalendarDateInTimezone(dateObj, timezone) {
+      try {
+        const formatter = new Intl.DateTimeFormat('en-US', {
+          timeZone: timezone,
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        });
+        const parts = formatter.formatToParts(dateObj);
+        const year = parts.find(p => p.type === 'year').value;
+        const month = parts.find(p => p.type === 'month').value.padStart(2, '0');
+        const day = parts.find(p => p.type === 'day').value.padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    /**
+     * Releases validation: Strictly compares puzzle date against authoritative date.
+     */
+    isPuzzleReleased(puzzle) {
+      if (!this.authoritativeDate || !puzzle || !puzzle.date) {
+        return false;
+      }
+      return puzzle.date <= this.authoritativeDate;
+    }
+
     async init() {
       try {
-        const res = await fetch(CSV_PATH);
-        if (!res.ok) throw new Error('Network response not ok');
+        // Request origin time and puzzle data simultaneously with fresh cache headers
+        const res = await fetch(CSV_PATH, {
+          cache: 'no-cache',
+          headers: {
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache'
+          }
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        // Extract and verify server Date header
+        const serverDateHeader = res.headers.get('Date');
+        if (serverDateHeader) {
+          const serverEpoch = Date.parse(serverDateHeader);
+          if (!Number.isNaN(serverEpoch)) {
+            this.authoritativeDate = this.getCalendarDateInTimezone(new Date(serverEpoch), RELEASE_TIMEZONE);
+          }
+        }
+
         const text = await res.text();
         const parsed = this.parseCSV(text);
         this.puzzles = parsed.length > 0 ? parsed : FALLBACK_PUZZLES;
       } catch (err) {
-        // Safe graceful fallback
+        // Safe fail-closed fallback
         this.puzzles = FALLBACK_PUZZLES;
+      }
+
+      // If server Date header was unavailable, fail closed
+      if (!this.authoritativeDate) {
+        this.authoritativeDate = null;
       }
 
       this.determineDailyPuzzle();
@@ -510,20 +554,60 @@
     }
 
     determineDailyPuzzle() {
-      const today = new Date().toISOString().slice(0, 10);
-      let match = this.puzzles.find(p => p.date === today);
-
-      if (!match) {
-        const past = this.puzzles.filter(p => p.date <= today);
-        match = past.length > 0 ? past[past.length - 1] : this.puzzles[0];
+      if (!this.authoritativeDate) {
+        this.dailyPuzzle = null;
+        return;
       }
+
+      // 1. Exact match for today's authoritative release date
+      let match = this.puzzles.find(p => p.date === this.authoritativeDate);
+
+      // 2. If no exact puzzle scheduled for today, fallback to the latest already-released past puzzle
+      if (!match) {
+        const releasedPast = this.puzzles
+          .filter(p => this.isPuzzleReleased(p) && p.date < this.authoritativeDate)
+          .sort((a, b) => a.date.localeCompare(b.date));
+        match = releasedPast.length > 0 ? releasedPast[releasedPast.length - 1] : null;
+      }
+
       this.dailyPuzzle = match;
     }
 
     updateMenuDashboard() {
-      if (!this.dailyPuzzle) return;
+      // 1. Handle unverified authoritative date state
+      if (!this.authoritativeDate) {
+        this.dom.menuDailyDate.textContent = 'Verification Required';
+        this.dom.menuDailyStatus.textContent = 'Connecting to lounge server to verify release schedule.';
+        this.dom.menuDailyProgressFill.style.width = '0%';
+        this.dom.btnPlayDaily.disabled = true;
+        this.dom.btnPlayDaily.style.opacity = '0.55';
+        this.dom.btnPlayDaily.style.cursor = 'not-allowed';
+        this.dom.menuVaultCount.textContent = '0 vintages';
+        return;
+      }
 
+      // 2. Compute released vault count
+      const releasedPuzzles = this.puzzles.filter(p => this.isPuzzleReleased(p));
+      const vaultCount = Math.max(0, this.dailyPuzzle ? releasedPuzzles.length - 1 : releasedPuzzles.length);
+      this.dom.menuVaultCount.textContent = `${vaultCount} past vintage${vaultCount === 1 ? '' : 's'}`;
+
+      // 3. Handle no puzzle released today
+      if (!this.dailyPuzzle) {
+        this.dom.menuDailyDate.textContent = this.formatDate(this.authoritativeDate);
+        this.dom.menuDailyStatus.textContent = 'No vintage released today. Check the archive.';
+        this.dom.menuDailyProgressFill.style.width = '0%';
+        this.dom.btnPlayDaily.disabled = true;
+        this.dom.btnPlayDaily.style.opacity = '0.55';
+        this.dom.btnPlayDaily.style.cursor = 'not-allowed';
+        return;
+      }
+
+      // 4. Normal released daily puzzle state
+      this.dom.btnPlayDaily.disabled = false;
+      this.dom.btnPlayDaily.style.opacity = '';
+      this.dom.btnPlayDaily.style.cursor = '';
       this.dom.menuDailyDate.textContent = this.formatDate(this.dailyPuzzle.date);
+
       const progress = this.storage.puzzles[this.dailyPuzzle.date] || { foundWords: [] };
       const max = this.calculateMaxScore(this.dailyPuzzle);
       const score = this.calculateWordsScore(progress.foundWords, this.dailyPuzzle);
@@ -532,9 +616,6 @@
       const rank = this.getRank(score, max);
       this.dom.menuDailyStatus.textContent = `${rank.name} • ${progress.foundWords.length} words found (${score} pts)`;
       this.dom.menuDailyProgressFill.style.width = `${pct}%`;
-
-      const vaultCount = Math.max(0, this.puzzles.length - 1);
-      this.dom.menuVaultCount.textContent = `${vaultCount} past vintage${vaultCount === 1 ? '' : 's'}`;
     }
 
     switchView(targetView) {
@@ -580,6 +661,12 @@
     }
 
     loadPuzzle(puzzle) {
+      // Security Enforcement: Never load an unreleased puzzle
+      if (!puzzle || !this.isPuzzleReleased(puzzle)) {
+        this.showFeedback('Vintage not yet released', 'error');
+        return;
+      }
+
       this.activePuzzle = puzzle;
       this.outerLetters = [...puzzle.outerLetters];
       this.inputWord = '';
@@ -589,7 +676,6 @@
       this.maxScore = this.calculateMaxScore(puzzle);
       this.score = this.calculateWordsScore(this.foundWords, puzzle);
 
-      // Dedicated Header: Puzzle Title
       const isDaily = this.dailyPuzzle && this.dailyPuzzle.date === puzzle.date;
       this.dom.gamePuzzleTitle.textContent = isDaily 
         ? `Daily Honeycomb • ${this.formatDate(puzzle.date)}`
@@ -616,13 +702,11 @@
     }
 
     renderHive() {
-      // Center letter
       const centerLetterSpan = this.dom.cellCenter.querySelector('.hex-letter');
       centerLetterSpan.textContent = this.activePuzzle.centerLetter;
       this.dom.cellCenter.setAttribute('data-letter', this.activePuzzle.centerLetter);
       this.dom.cellCenter.setAttribute('aria-label', `Center letter ${this.activePuzzle.centerLetter}`);
 
-      // Outer letters
       this.dom.outerCells.forEach((cell, idx) => {
         const letter = this.outerLetters[idx] || '';
         const span = cell.querySelector('.hex-letter');
@@ -777,8 +861,18 @@
     renderVault() {
       this.dom.vaultGrid.innerHTML = '';
       
+      if (!this.authoritativeDate) {
+        this.dom.vaultHeaderCount.textContent = '0';
+        const msg = document.createElement('p');
+        msg.className = 'empty-found-msg';
+        msg.textContent = 'Authoritative release schedule unavailable. Reconnect to browse archive.';
+        this.dom.vaultGrid.appendChild(msg);
+        return;
+      }
+
+      // Filter: STRICTLY only released puzzles; exclude current daily puzzle
       const vaultPuzzles = this.puzzles
-        .filter(p => !this.dailyPuzzle || p.date !== this.dailyPuzzle.date)
+        .filter(p => this.isPuzzleReleased(p) && (!this.dailyPuzzle || p.date !== this.dailyPuzzle.date))
         .sort((a, b) => b.date.localeCompare(a.date));
 
       this.dom.vaultHeaderCount.textContent = vaultPuzzles.length;
@@ -891,7 +985,7 @@
 
     updateStats(pts, isPangram) {
       const stats = this.storage.stats;
-      const today = new Date().toISOString().slice(0, 10);
+      const today = this.authoritativeDate || this.getCalendarDateInTimezone(new Date(), RELEASE_TIMEZONE);
 
       stats.words += 1;
       stats.points += pts;
