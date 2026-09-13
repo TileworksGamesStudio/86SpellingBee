@@ -2,7 +2,7 @@
   'use strict';
 
   // Universal Storage & Application Configuration
-  const STORAGE_KEY = 'spelling_bee_save_v2';
+  const STORAGE_KEY = 'cocktail_pelling_bee_save_v2';
   const CSV_PATH = './puzzles.csv';
   
   // Authoritative Release Configuration
