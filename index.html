@@ -2,322 +2,322 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>86 SPELLING BEE</title>
-  <meta name="description" content="Daily Cocktail Honeycomb Game">
-  <link rel="stylesheet" href="./style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Spelling Bee — The Cocktail Lounge</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="ambient-lounge-bg" aria-hidden="true">
-    <div class="lounge-glow glow-top"></div>
-    <div class="lounge-glow glow-bottom"></div>
-    <div class="lounge-light-source"></div>
-    <div class="garnish-stage" id="garnishStage"></div>
+  <!-- Atmospheric Background System -->
+  <div class="lounge-atmosphere" aria-hidden="true">
+    <div class="lounge-caustic lounge-caustic-1"></div>
+    <div class="lounge-caustic lounge-caustic-2"></div>
+    <div class="lounge-vignette"></div>
+    <div class="lounge-grain"></div>
+    <div class="garnish-canvas" id="garnishContainer"></div>
   </div>
 
-  <div class="app-viewport">
+  <div class="app-root">
 
-    <section class="screen-view error-view" id="errorScreen" hidden>
-      <div class="error-container">
-        <h2 class="error-title">Unavailable</h2>
-        <p class="error-message" id="errorMessageText">Today's puzzle could not be verified.</p>
-        <button type="button" class="neo-btn btn-primary-play" id="retryBtn">TRY AGAIN</button>
-      </div>
-    </section>
+    <!-- ==========================================
+         VIEW 1: MAIN MENU
+         Hierarchy: Title -> Daily Puzzle -> Vault -> Home
+         ========================================== -->
+    <section class="view view-menu" id="menuView" aria-label="Main Menu">
+      <header class="menu-hero">
+        <div class="brand-ornament" aria-hidden="true">
+          <span class="ornament-line"></span>
+          <span class="ornament-gem">✦</span>
+          <span class="ornament-line"></span>
+        </div>
+        <span class="game-badge">RESERVE WORD SALON</span>
+        <h1 class="menu-title">Spelling Bee</h1>
+        <p class="menu-tagline">Craft refined words using seven letters. The golden center is essential.</p>
+        <div class="hero-divider" aria-hidden="true"></div>
+      </header>
 
-    <section class="screen-view main-menu-view" id="mainMenuScreen" hidden>
-      <div class="menu-container">
-        <header class="menu-header">
-          <span class="platform-badge">THE 86 COCKTAIL CLUB</span>
-          <h1 class="game-main-title">SPELLING BEE</h1>
-        </header>
-
-        <div class="menu-action-stack">
-          <article class="menu-card today-hero-card" id="todayHeroCard">
-            <div class="card-glass-shine" aria-hidden="true"></div>
-            <div class="card-top-row">
-              <span class="service-live-badge">
-                <span class="live-dot" aria-hidden="true"></span>
-                <span id="menuTodayBadge">TODAY</span>
-              </span>
-              <span class="card-diff-pill" id="menuDiffPill">DIFFICULTY</span>
-            </div>
-
-            <div class="card-body">
-              <h2 class="card-theme-title" id="menuThemeTitle">Loading...</h2>
-              <span class="card-category-label" id="menuCurriculumCategory">Category</span>
-              <div class="card-status-bar" id="menuStatusBar">
-                <span class="status-metric" id="menuStatusText">Status</span>
-                <span class="status-rank-badge" id="menuStatusRank">Rank</span>
-              </div>
-            </div>
-
-            <button type="button" class="neo-btn btn-primary-play" id="playTodayBtn">PLAY</button>
-          </article>
-
-          <button type="button" class="neo-btn menu-card vault-menu-card" id="openVaultMenuBtn">
-            <div class="vault-btn-left">
-              <span class="vault-icon">🗝️</span>
-              <div class="vault-copy">
-                <h3 class="vault-title">VAULT</h3>
-              </div>
-            </div>
-            <span class="vault-count-badge" id="vaultArchiveCountBadge">0</span>
-          </button>
-
-          <a href="https://tileworksgamesstudio.github.io/86/" class="neo-btn menu-card platform-hub-card" id="all86GamesLink">
-            <div class="vault-btn-left">
-              <span class="hub-icon">🏛️</span>
-              <div class="vault-copy">
-                <h3 class="vault-title">ALL GAMES</h3>
-              </div>
-            </div>
-            <span class="hub-arrow-badge">EXIT ↗</span>
-          </a>
-
-          <div class="menu-utility-row">
-            <button type="button" class="neo-btn utility-btn" id="menuSoundBtn">
-              <span class="util-icon" id="menuSoundIcon">🔊</span>
-              <span class="util-label" id="menuSoundLabel">SOUND ON</span>
-            </button>
-            <button type="button" class="neo-btn utility-btn" id="menuHowToPlayBtn">
-              <span class="util-icon">?</span>
-              <span class="util-label">RULES</span>
-            </button>
-            <button type="button" class="neo-btn utility-btn" id="menuStatsBtn">
-              <span class="util-icon">📊</span>
-              <span class="util-label">STATS</span>
-            </button>
+      <nav class="nav-stack" aria-label="Primary Navigation">
+        <!-- 1. DAILY PUZZLE (Primary Destination) -->
+        <article class="nav-card primary-card" id="cardDaily">
+          <div class="card-shimmer" aria-hidden="true"></div>
+          <div class="card-meta">
+            <span class="card-badge">TODAY'S SELECTION</span>
+            <span class="card-date" id="menuDailyDate">Loading...</span>
           </div>
-        </div>
-      </div>
+          <div class="card-body">
+            <h2 class="card-title" id="menuDailyTitle">Daily Honeycomb</h2>
+            <p class="card-desc" id="menuDailyStatus">Find words to advance your rank.</p>
+            <div class="card-progress-bar" id="menuDailyProgressWrap" role="progressbar" aria-label="Daily progress">
+              <div class="card-progress-fill" id="menuDailyProgressFill" style="width: 0%"></div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-action w-full" id="btnPlayDaily">
+            <span class="btn-text">Play Daily Puzzle</span>
+            <span class="btn-glow" aria-hidden="true"></span>
+          </button>
+        </article>
+
+        <!-- 2. VAULT (Historical Archive) -->
+        <article class="nav-card" id="cardVault">
+          <div class="card-meta">
+            <span class="card-badge">THE ARCHIVE</span>
+            <span class="card-stat" id="menuVaultCount">0 puzzles</span>
+          </div>
+          <div class="card-body">
+            <h2 class="card-title">The Vault</h2>
+            <p class="card-desc">Revisit past vintages and complete previous honeycombs.</p>
+          </div>
+          <button type="button" class="btn btn-secondary w-full" id="btnOpenVault">
+            <span class="btn-text">Browse Vault</span>
+          </button>
+        </article>
+
+        <!-- 3. HOME (External Parent Portal Navigation) -->
+        <a href="#home" class="nav-card home-card" id="linkHome" aria-label="Return to Main Portal">
+          <div class="home-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-9.5z"/>
+            </svg>
+          </div>
+          <div class="home-content">
+            <h2 class="card-title">Lounge Portal</h2>
+            <p class="card-desc">Return to the grand puzzle library.</p>
+          </div>
+          <span class="home-arrow" aria-hidden="true">→</span>
+        </a>
+      </nav>
+
+      <footer class="menu-footer">
+        <button type="button" class="btn btn-subtle" id="btnMenuRules">How to Play</button>
+        <span class="footer-dot" aria-hidden="true">•</span>
+        <button type="button" class="btn btn-subtle" id="btnMenuStats">Career Stats</button>
+      </footer>
     </section>
 
-    <main class="screen-view game-play-view" id="gameplayScreen" hidden>
+    <!-- ==========================================
+         VIEW 2: GAMEPLAY SCREEN
+         ========================================== -->
+    <section class="view view-game" id="gameView" hidden aria-label="Gameplay Screen">
+      <!-- Universal Gameplay Header -->
       <header class="game-header">
-        <div class="header-left">
-          <button type="button" id="backToMenuBtn" class="neo-btn header-btn menu-return-btn">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            <span>BACK</span>
-          </button>
+        <button type="button" class="btn btn-back" id="btnGameBack" aria-label="Back to Menu">
+          <span class="btn-arrow" aria-hidden="true">←</span> Menu
+        </button>
+        <div class="game-title-wrap">
+          <h2 class="game-puzzle-title" id="gamePuzzleTitle">Spelling Bee</h2>
         </div>
-
-        <div class="header-center">
-          <span class="header-edition" id="gameEditionBadge">TODAY</span>
-        </div>
-
-        <div class="header-right">
-          <button type="button" id="gameSoundBtn" class="neo-btn header-icon-btn">
-            <span id="gameSoundIcon">🔊</span>
-          </button>
-          <button type="button" id="gameHowBtn" class="neo-btn header-icon-btn">?</button>
-          <button type="button" id="gameStatsBtn" class="neo-btn header-icon-btn">
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        <div class="game-header-tools">
+          <button type="button" class="btn btn-icon" id="btnGameRules" aria-label="Rules">?</button>
+          <button type="button" class="btn btn-icon" id="btnGameStats" aria-label="Statistics">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+              <path d="M4 19h16v2H2V3h2v16zm4-3H6v-6h2v6zm5 0h-2V7h2v9zm5 0h-2V11h2v5z"/>
+            </svg>
           </button>
         </div>
       </header>
 
-      <div class="game-board-area">
-        <section class="game-meta-strip">
-          <div class="meta-strip-item">
-            <span class="strip-label">THEME</span>
-            <span class="strip-val" id="gameThemeTitle">—</span>
-          </div>
-          <div class="meta-strip-item right">
-            <span class="strip-label">CATEGORY</span>
-            <span class="strip-val category-text" id="gameCategoryTitle">—</span>
-          </div>
-        </section>
+      <!-- Section Above Game Board: Rank & Score Status -->
+      <section class="rank-strip" aria-label="Score Progress">
+        <div class="rank-row">
+          <span class="rank-title-wrap">
+            <span class="rank-label">Rank</span>
+            <span class="rank-title" id="rankName">Beginner</span>
+          </span>
+          <span class="rank-fraction">
+            <strong id="currentScore">0</strong> <span class="divider">/</span> <span id="maxScore">0</span> <span class="pts-tag">pts</span>
+          </span>
+        </div>
+        <div class="rank-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="rankProgressBar">
+          <div class="rank-fill" id="rankFill"></div>
+        </div>
+      </section>
 
-        <section class="rank-ladder-panel">
-          <div class="rank-header">
-            <div class="rank-title-wrap">
-              <span class="rank-prefix">RANK:</span>
-              <span class="rank-name-label" id="currentRankLabel">Barback</span>
-            </div>
-            <div class="rank-score-pill">
-              <span id="playerCurrentScore">0</span>
-              <span class="score-divider">/</span>
-              <span id="rankMaxScore" class="score-max">100</span>
-              <span class="score-unit">PTS</span>
-            </div>
-          </div>
-          <div class="rank-track-wrap">
-            <div class="rank-progress-bar" id="rankProgressBar" style="width: 0%;"></div>
-            <div class="rank-markers" id="rankMarkers" aria-hidden="true"></div>
-          </div>
-        </section>
-
-        <section class="word-stage">
-          <div class="toast-message" id="toastMessage" role="alert" aria-live="polite"></div>
-          <div class="input-display-wrap">
-            <div class="word-input-display" id="wordInputDisplay">
-              <span class="cursor-beam" aria-hidden="true"></span>
-            </div>
-          </div>
-        </section>
-
-        <section class="hive-wrapper">
-          <div class="hive-grid">
-            <div class="hive-row row-top">
-              <button type="button" class="hive-cell outer-cell" data-letter="" id="cell-0">
-                <span class="cell-fill"></span>
-                <span class="cell-letter"></span>
-              </button>
-              <button type="button" class="hive-cell outer-cell" data-letter="" id="cell-1">
-                <span class="cell-fill"></span>
-                <span class="cell-letter"></span>
-              </button>
-            </div>
-            <div class="hive-row row-mid">
-              <button type="button" class="hive-cell outer-cell" data-letter="" id="cell-2">
-                <span class="cell-fill"></span>
-                <span class="cell-letter"></span>
-              </button>
-              <button type="button" class="hive-cell center-cell" data-letter="" id="cell-center">
-                <span class="cell-fill"></span>
-                <span class="cell-letter"></span>
-                <span class="center-ring-shine"></span>
-              </button>
-              <button type="button" class="hive-cell outer-cell" data-letter="" id="cell-3">
-                <span class="cell-fill"></span>
-                <span class="cell-letter"></span>
-              </button>
-            </div>
-            <div class="hive-row row-bottom">
-              <button type="button" class="hive-cell outer-cell" data-letter="" id="cell-4">
-                <span class="cell-fill"></span>
-                <span class="cell-letter"></span>
-              </button>
-              <button type="button" class="hive-cell outer-cell" data-letter="" id="cell-5">
-                <span class="cell-fill"></span>
-                <span class="cell-letter"></span>
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section class="hive-actions-bar">
-          <button type="button" id="deleteBtn" class="neo-btn action-btn delete-btn">
-            <span>DELETE</span>
-          </button>
-          <button type="button" id="shuffleBtn" class="neo-btn action-btn shuffle-btn">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
-          </button>
-          <button type="button" id="enterBtn" class="neo-btn action-btn enter-btn">
-            <span>ENTER</span>
-          </button>
-        </section>
-
-        <section class="found-words-drawer" id="foundDrawer">
-          <button type="button" class="found-drawer-toggle" id="toggleDrawerBtn" aria-expanded="false" aria-controls="drawerContent">
-            <div class="toggle-info">
-              <span class="drawer-title">Found Words (<span id="foundCount">0</span>)</span>
-              <span class="drawer-preview" id="foundPreview">None yet</span>
-            </div>
-            <span class="drawer-arrow" id="drawerArrow">▲</span>
-          </button>
-          <div class="drawer-content" id="drawerContent" hidden>
-            <div class="found-chips-grid" id="foundChipsGrid"></div>
-          </div>
-        </section>
+      <!-- Interactive Input Display -->
+      <div class="input-container">
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <div class="input-display" id="inputDisplay" aria-live="assertive">
+          <span class="cursor" aria-hidden="true"></span>
+        </div>
       </div>
-    </main>
 
-    <div class="modal-layer" id="vaultModal" role="dialog" aria-modal="true" aria-labelledby="vaultTitle" hidden>
-      <div class="modal-backdrop" data-close="vaultModal"></div>
-      <div class="modal-card neo-card vault-card">
-        <div class="modal-header">
-          <h2 id="vaultTitle" class="card-title">VAULT</h2>
-          <button type="button" class="neo-btn icon-btn" data-close="vaultModal">✕</button>
+      <!-- CENTER: The Glass & Brass Honeycomb Hive -->
+      <main class="hive-board" aria-label="Letter Hexagons">
+        <div class="hive-row top">
+          <button type="button" class="hex-btn" id="cell-0" data-index="0" aria-label="Letter">
+            <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
+              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape outer-hex" />
+            </svg>
+            <span class="hex-letter"></span>
+          </button>
+          <button type="button" class="hex-btn" id="cell-1" data-index="1" aria-label="Letter">
+            <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
+              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape outer-hex" />
+            </svg>
+            <span class="hex-letter"></span>
+          </button>
         </div>
-        <div class="vault-scroll-area" id="vaultListContainer"></div>
+
+        <div class="hive-row mid">
+          <button type="button" class="hex-btn" id="cell-2" data-index="2" aria-label="Letter">
+            <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
+              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape outer-hex" />
+            </svg>
+            <span class="hex-letter"></span>
+          </button>
+
+          <!-- The Vital Center Letter -->
+          <button type="button" class="hex-btn hex-center" id="cellCenter" aria-label="Center Letter">
+            <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
+              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape center-hex" />
+            </svg>
+            <span class="hex-letter"></span>
+          </button>
+
+          <button type="button" class="hex-btn" id="cell-3" data-index="3" aria-label="Letter">
+            <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
+              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape outer-hex" />
+            </svg>
+            <span class="hex-letter"></span>
+          </button>
+        </div>
+
+        <div class="hive-row bottom">
+          <button type="button" class="hex-btn" id="cell-4" data-index="4" aria-label="Letter">
+            <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
+              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape outer-hex" />
+            </svg>
+            <span class="hex-letter"></span>
+          </button>
+          <button type="button" class="hex-btn" id="cell-5" data-index="5" aria-label="Letter">
+            <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
+              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape outer-hex" />
+            </svg>
+            <span class="hex-letter"></span>
+          </button>
+        </div>
+      </main>
+
+      <!-- Tactile Gameplay Controls -->
+      <section class="gameplay-controls" aria-label="Actions">
+        <button type="button" class="btn btn-secondary" id="btnDelete">Delete</button>
+        <button type="button" class="btn btn-secondary btn-shuffle" id="btnShuffle" aria-label="Shuffle Outer Letters">
+          Shuffle <span class="shuffle-icon" aria-hidden="true">⟳</span>
+        </button>
+        <button type="button" class="btn btn-action" id="btnEnter">Enter</button>
+      </section>
+
+      <!-- Supporting Found Words Drawer -->
+      <section class="found-drawer" aria-label="Found Words Accordion">
+        <button type="button" class="found-toggle-bar" id="foundToggle" aria-expanded="false" aria-controls="foundListWrap">
+          <span class="found-toggle-title">Found Words (<span id="foundCount">0</span>)</span>
+          <span class="toggle-icon" id="foundToggleIcon" aria-hidden="true">▼</span>
+        </button>
+        <div class="found-list-wrap" id="foundListWrap" hidden>
+          <div class="found-list" id="foundList"></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ==========================================
+         VIEW 3: VAULT ARCHIVE SCREEN
+         ========================================== -->
+    <section class="view view-vault" id="vaultView" hidden aria-label="Puzzle Archive">
+      <header class="vault-header">
+        <button type="button" class="btn btn-back" id="btnVaultBack">
+          <span class="btn-arrow" aria-hidden="true">←</span> Menu
+        </button>
+        <div class="vault-title-wrap">
+          <h2 class="vault-title">The Vault</h2>
+        </div>
+        <span class="vault-count-badge" id="vaultHeaderCount">0</span>
+      </header>
+
+      <div class="vault-intro">
+        <p>Complete historical honeycombs at your own leisure. Saved automatically to your lounge record.</p>
       </div>
-    </div>
 
-    <div class="modal-layer" id="rulesModal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle" hidden>
-      <div class="modal-backdrop" data-close="rulesModal"></div>
-      <div class="modal-card neo-card rules-card">
-        <div class="modal-header">
-          <h2 id="rulesTitle" class="card-title">RULES</h2>
-          <button type="button" class="neo-btn icon-btn" data-close="rulesModal">✕</button>
+      <div class="vault-grid" id="vaultGrid" role="feed" aria-label="Past Puzzles">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- ==========================================
+         MODALS: RULES & STATS
+         ========================================== -->
+    <div class="modal-backdrop" id="modalRules" hidden role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+      <div class="modal-window">
+        <header class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-eyebrow">Cocktail Lounge Handbook</span>
+            <h3 id="rulesTitle">How to Play</h3>
+          </div>
+          <button type="button" class="modal-close" data-close="modalRules" aria-label="Close modal">&times;</button>
+        </header>
+        <div class="modal-body">
+          <ul class="rules-guide">
+            <li><strong>Words must contain at least 4 letters.</strong></li>
+            <li><strong>Words must include the center letter.</strong></li>
+            <li>Letters may be used more than once.</li>
+            <li>4-letter words earn 1 point.</li>
+            <li>Longer words score 1 point per letter.</li>
+            <li>Each honeycomb contains at least one <strong>Pangram</strong> that utilizes all 7 letters for <strong>7 bonus points</strong>!</li>
+          </ul>
         </div>
-        <div class="modal-body-scroll">
-          <div class="rules-step">
-            <span class="step-num">1</span>
-            <p>Words must contain at least <strong>4 letters</strong>.</p>
-          </div>
-          <div class="rules-step">
-            <span class="step-num">2</span>
-            <p>Words must include the <strong>center golden letter</strong>.</p>
-          </div>
-          <div class="rules-step">
-            <span class="step-num">3</span>
-            <p>Letters can be used <strong>multiple times</strong>.</p>
-          </div>
-          <div class="rules-step">
-            <span class="step-num">4</span>
-            <p><strong>Scoring:</strong> 4-letter words = 1 pt. Longer words = 1 pt per letter.</p>
-          </div>
-          <div class="rules-step highlight-step">
-            <span class="step-num">★</span>
-            <p><strong>Pangrams:</strong> Words that use all 7 unique letters earn <strong>+7 points</strong>.</p>
-          </div>
-          <div class="ranks-guide">
-            <h4 class="guide-heading">RANKS</h4>
-            <div class="ranks-grid">
-              <span>Barback</span><span>Novice</span><span>Pourer</span>
-              <span>Line Bartender</span><span>Mixologist</span><span>Senior Mixologist</span>
-              <span>Head Bartender</span><span>Beverage Director</span><span>Cocktail Legend</span>
-            </div>
-          </div>
-        </div>
+        <footer class="modal-footer">
+          <button type="button" class="btn btn-action w-full" data-close="modalRules">Got It</button>
+        </footer>
       </div>
     </div>
 
-    <div class="modal-layer" id="statsModal" role="dialog" aria-modal="true" aria-labelledby="statsTitle" hidden>
-      <div class="modal-backdrop" data-close="statsModal"></div>
-      <div class="modal-card neo-card stats-card">
-        <div class="modal-header">
-          <h2 id="statsTitle" class="card-title">STATS</h2>
-          <button type="button" class="neo-btn icon-btn" data-close="statsModal">✕</button>
+    <div class="modal-backdrop" id="modalStats" hidden role="dialog" aria-modal="true" aria-labelledby="statsTitle">
+      <div class="modal-window">
+        <header class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-eyebrow">Personal Ledger</span>
+            <h3 id="statsTitle">Career Statistics</h3>
+          </div>
+          <button type="button" class="modal-close" data-close="modalStats" aria-label="Close modal">&times;</button>
+        </header>
+        <div class="modal-body">
+          <div class="stat-tiles">
+            <div class="stat-tile">
+              <span class="stat-value" id="statPlayed">0</span>
+              <span class="stat-label">Played</span>
+            </div>
+            <div class="stat-tile">
+              <span class="stat-value" id="statWords">0</span>
+              <span class="stat-label">Words</span>
+            </div>
+            <div class="stat-tile">
+              <span class="stat-value" id="statPangrams">0</span>
+              <span class="stat-label">Pangrams</span>
+            </div>
+            <div class="stat-tile">
+              <span class="stat-value" id="statPoints">0</span>
+              <span class="stat-label">Points</span>
+            </div>
+          </div>
+          <div class="streak-tiles">
+            <div class="stat-tile">
+              <span class="stat-value" id="statCurrentStreak">0</span>
+              <span class="stat-label">Current Streak</span>
+            </div>
+            <div class="stat-tile">
+              <span class="stat-value" id="statMaxStreak">0</span>
+              <span class="stat-label">Best Streak</span>
+            </div>
+          </div>
         </div>
-        <div class="stats-kpi-grid">
-          <div class="kpi-box">
-            <span class="kpi-val" id="statPlayed">0</span>
-            <span class="kpi-label">Played</span>
-          </div>
-          <div class="kpi-box">
-            <span class="kpi-val" id="statWords">0</span>
-            <span class="kpi-label">Words</span>
-          </div>
-          <div class="kpi-box">
-            <span class="kpi-val" id="statPangrams">0</span>
-            <span class="kpi-label">Pangrams</span>
-          </div>
-          <div class="kpi-box">
-            <span class="kpi-val" id="statPoints">0</span>
-            <span class="kpi-label">Points</span>
-          </div>
-        </div>
-        <div class="streak-banner">
-          <div class="streak-item">
-            <span class="streak-label">STREAK</span>
-            <span class="streak-val" id="statCurrentStreak">0</span>
-          </div>
-          <div class="streak-item">
-            <span class="streak-label">BEST</span>
-            <span class="streak-val" id="statMaxStreak">0</span>
-          </div>
-        </div>
+        <footer class="modal-footer">
+          <button type="button" class="btn btn-secondary w-full" data-close="modalStats">Close</button>
+        </footer>
       </div>
     </div>
 
   </div>
 
-  <script src="./script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
