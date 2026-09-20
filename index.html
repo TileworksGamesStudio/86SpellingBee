@@ -3,292 +3,435 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Spelling Bee</title>
+  <title>Spelling Bee • High-Proof Honeycomb</title>
+  
+  <!-- Premium Lounge Typography: Cormorant Garamond & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Atmospheric Background System -->
-  <div class="lounge-atmosphere" aria-hidden="true">
-    <div class="lounge-caustic lounge-caustic-1"></div>
-    <div class="lounge-caustic lounge-caustic-2"></div>
-    <div class="lounge-vignette"></div>
-    <div class="lounge-grain"></div>
-    <div class="garnish-canvas" id="garnishContainer"></div>
+  <!-- Accessibility Live Region -->
+  <div id="srAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Layer 1: Deep Caustic Atmospheric Lighting Pools -->
+  <div class="bg-atmosphere" aria-hidden="true">
+    <div class="ambient-pool pool-top"></div>
+    <div class="ambient-pool pool-center"></div>
+    <div class="ambient-pool pool-bottom"></div>
   </div>
 
-  <div class="app-root">
+  <!-- Layer 2: Luxury Micro-Dotted Lounge Pinstripe & Grain Texture -->
+  <div class="bg-dotted-pinstripe" aria-hidden="true"></div>
+
+  <!-- Layer 3: Upgraded Glowing Garnish Flight System (Continuous Bottom-to-Top Drift) -->
+  <div class="bg-floating-icons" id="bgFloatingIcons" aria-hidden="true"></div>
+
+  <div class="app-root" id="appRoot">
 
     <!-- ==========================================
-         VIEW 1: MAIN MENU
-         Hierarchy: Title -> Daily Puzzle -> Vault -> Home
+         VIEW 1: MAIN MENU (CENTER-ALIGNED SHELL)
          ========================================== -->
     <section class="view view-menu" id="menuView" aria-label="Main Menu">
-      <header class="menu-hero">
-        <div class="brand-ornament" aria-hidden="true">
-          <span class="ornament-line"></span>
-          <span class="ornament-gem">✦</span>
-          <span class="ornament-line"></span>
-        </div>
-        <span class="game-badge">RESERVE WORD SALON</span>
-        <h1 class="menu-title">Spelling Bee</h1>
-        <p class="menu-tagline">Craft refined words using seven letters. The golden center is essential.</p>
-        <div class="hero-divider" aria-hidden="true"></div>
+      <!-- Fixed Header: Top-Left Home & Game Title -->
+      <header class="main-menu-header">
+        <a href="https://tileworksgamesstudio.github.io/86/" class="btn-home" id="btnMenuTopHome" aria-label="Return to Home" title="Home">
+          <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+            <path d="M3 10.5L12 3l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5H15v-6a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v6H4.5A1.5 1.5 0 0 1 3 20v-9.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="home-label">Home</span>
+        </a>
+        <h1 class="game-brand-title">Spelling Bee</h1>
       </header>
 
-      <nav class="nav-stack" aria-label="Primary Navigation">
-        <!-- 1. DAILY PUZZLE (Primary Destination) -->
-        <article class="nav-card primary-card" id="cardDaily">
-          <div class="card-shimmer" aria-hidden="true"></div>
-          <div class="card-meta">
-            <span class="card-badge">TODAY'S SELECTION</span>
-            <span class="card-date" id="menuDailyDate">Loading...</span>
-          </div>
-          <div class="card-body">
-            <h2 class="card-title" id="menuDailyTitle">Daily Honeycomb</h2>
-            <p class="card-desc" id="menuDailyStatus">Find words to advance your rank.</p>
-            <div class="card-progress-bar" id="menuDailyProgressWrap" role="progressbar" aria-label="Daily progress">
-              <div class="card-progress-fill" id="menuDailyProgressFill" style="width: 0%"></div>
-            </div>
-          </div>
-          <button type="button" class="btn btn-action w-full" id="btnPlayDaily">
-            <span class="btn-text">Play Daily Puzzle</span>
-            <span class="btn-glow" aria-hidden="true"></span>
-          </button>
-        </article>
+      <!-- Centered Menu Column -->
+      <main class="menu-content-column">
+        <div class="menu-hero-badge-wrap">
+          <span class="game-badge">WORD PUZZLE • DAILY HIVE</span>
+          <div id="offlineIndicator" class="offline-badge" hidden>⚡ Offline Mode • Cached Honeycombs Loaded</div>
+        </div>
 
-        <!-- 2. VAULT (Historical Archive) -->
-        <article class="nav-card" id="cardVault">
-          <div class="card-meta">
-            <span class="card-badge">THE ARCHIVE</span>
-            <span class="card-stat" id="menuVaultCount">0 puzzles</span>
+        <div class="menu-daily-summary-card">
+          <div class="summary-card-meta">
+            <span class="summary-card-badge">TODAY'S COCKTAIL</span>
+            <span class="summary-card-date" id="menuDailyDate">Loading...</span>
           </div>
-          <div class="card-body">
-            <h2 class="card-title">The Vault</h2>
-            <p class="card-desc">Revisit past vintages and complete previous honeycombs.</p>
+          <div class="summary-card-status" id="menuDailyStatus">Discover words to climb the ranks.</div>
+          <div class="summary-progress-bar">
+            <div class="summary-progress-fill" id="menuDailyProgressFill" style="width: 0%"></div>
           </div>
-          <button type="button" class="btn btn-secondary w-full" id="btnOpenVault">
-            <span class="btn-text">Browse Vault</span>
-          </button>
-        </article>
+        </div>
 
-        <!-- 3. HOME (External Parent Portal Navigation) -->
-        <a href="#home" class="nav-card home-card" id="linkHome" aria-label="Return to Main Portal">
-          <div class="home-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75">
-              <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-9.5z"/>
+        <!-- THE 4 PRIMARY MENU BUTTONS (SMOKED GLASS & BRASS) -->
+        <nav class="primary-menu-nav" aria-label="Game Navigation">
+          <!-- 1. Play Game -->
+          <button type="button" class="btn btn-menu-primary" id="btnPlayDaily">
+            <span class="btn-menu-icon" aria-hidden="true">🐝</span>
+            <span class="btn-menu-text" id="btnPlayDailyText">Play Spelling Bee</span>
+            <span class="btn-menu-arrow" aria-hidden="true">→</span>
+          </button>
+
+          <!-- 2. Vault -->
+          <button type="button" class="btn btn-menu-item" id="btnOpenVault">
+            <span class="btn-menu-icon" aria-hidden="true">🏛️</span>
+            <span class="btn-menu-text">The Vault <span class="badge-count" id="menuVaultCount">0</span></span>
+            <span class="btn-menu-arrow" aria-hidden="true">→</span>
+          </button>
+
+          <!-- 3. Settings -->
+          <button type="button" class="btn btn-menu-item" id="btnOpenSettings">
+            <span class="btn-menu-icon" aria-hidden="true">⚙️</span>
+            <span class="btn-menu-text">Settings</span>
+            <span class="btn-menu-arrow" aria-hidden="true">→</span>
+          </button>
+
+          <!-- 4. How to Play -->
+          <button type="button" class="btn btn-menu-item" id="btnOpenHowToPlay">
+            <span class="btn-menu-icon" aria-hidden="true">📖</span>
+            <span class="btn-menu-text">How to Play</span>
+            <span class="btn-menu-arrow" aria-hidden="true">→</span>
+          </button>
+        </nav>
+
+        <!-- EXACTLY THREE SMALL UTILITY BUTTONS AT BOTTOM CENTER -->
+        <footer class="menu-utility-row" aria-label="Game Utilities">
+          <button type="button" class="btn btn-util" id="btnMenuStats" aria-label="Career Statistics" title="Career Statistics">
+            <svg viewBox="0 0 24 24" class="util-svg" aria-hidden="true">
+              <path d="M18 20V10M12 20V4M6 20v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-          </div>
-          <div class="home-content">
-            <h2 class="card-title">Lounge Portal</h2>
-            <p class="card-desc">Return to the grand puzzle library.</p>
-          </div>
-          <span class="home-arrow" aria-hidden="true">→</span>
-        </a>
-      </nav>
-
-      <footer class="menu-footer">
-        <button type="button" class="btn btn-subtle" id="btnMenuRules">How to Play</button>
-        <span class="footer-dot" aria-hidden="true">•</span>
-        <button type="button" class="btn btn-subtle" id="btnMenuStats">Career Stats</button>
-      </footer>
+            <span class="util-tooltip">Stats</span>
+          </button>
+          <button type="button" class="btn btn-util" id="btnMenuShare" aria-label="Share Spelling Bee" title="Share Game">
+            <svg viewBox="0 0 24 24" class="util-svg" aria-hidden="true">
+              <circle cx="18" cy="5" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/>
+              <circle cx="6" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/>
+              <circle cx="18" cy="19" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" stroke-width="2"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="util-tooltip">Share</span>
+          </button>
+          <button type="button" class="btn btn-util" id="btnMenuPlus" aria-label="More Features" title="More Features">
+            <svg viewBox="0 0 24 24" class="util-svg" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+            <span class="util-tooltip">Plus</span>
+          </button>
+        </footer>
+      </main>
     </section>
 
     <!-- ==========================================
          VIEW 2: GAMEPLAY SCREEN
          ========================================== -->
     <section class="view view-game" id="gameView" hidden aria-label="Gameplay Screen">
-      <!-- Universal Gameplay Header -->
       <header class="game-header">
         <button type="button" class="btn btn-back" id="btnGameBack" aria-label="Back to Menu">
-          <span class="btn-arrow" aria-hidden="true">←</span> Menu
+          <span aria-hidden="true">←</span> Menu
         </button>
-        <div class="game-title-wrap">
-          <h2 class="game-puzzle-title" id="gamePuzzleTitle">Spelling Bee</h2>
-        </div>
+        <h2 class="game-puzzle-title" id="gamePuzzleTitle">Spelling Bee</h2>
         <div class="game-header-tools">
-          <button type="button" class="btn btn-icon" id="btnGameRules" aria-label="Rules">?</button>
-          <button type="button" class="btn btn-icon" id="btnGameStats" aria-label="Statistics">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-              <path d="M4 19h16v2H2V3h2v16zm4-3H6v-6h2v6zm5 0h-2V7h2v9zm5 0h-2V11h2v5z"/>
-            </svg>
-          </button>
+          <button type="button" class="btn btn-icon" id="btnGameHints" aria-label="Puzzle Hints Matrix" title="Hints">💡</button>
+          <button type="button" class="btn btn-icon" id="btnGameRules" aria-label="How to Play" title="Rules">📖</button>
+          <button type="button" class="btn btn-icon" id="btnGameShare" aria-label="Share Daily Progress" title="Share Progress">↗</button>
+          <button type="button" class="btn btn-icon" id="btnGameStats" aria-label="Statistics" title="Career Stats">📊</button>
         </div>
       </header>
 
-      <!-- Section Above Game Board: Rank & Score Status -->
+      <!-- Score Progress Bar with Brass Milestones -->
       <section class="rank-strip" aria-label="Score Progress">
         <div class="rank-row">
-          <span class="rank-title-wrap">
-            <span class="rank-label">Rank</span>
+          <div class="rank-title-wrap">
             <span class="rank-title" id="rankName">Beginner</span>
-          </span>
+            <span class="qb-badge" id="badgeQueenBee" hidden aria-label="Queen Bee achieved">👑 Queen Bee</span>
+          </div>
           <span class="rank-fraction">
-            <strong id="currentScore">0</strong> <span class="divider">/</span> <span id="maxScore">0</span> <span class="pts-tag">pts</span>
+            <strong id="currentScore">0</strong> / <span id="maxScore">0</span> pts
           </span>
         </div>
-        <div class="rank-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="rankProgressBar">
+        <div class="rank-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-valuetext="Beginner, 0 of 0 points" id="rankProgressBar">
+          <div class="rank-ticks-layer" id="rankTicksLayer" aria-hidden="true"></div>
           <div class="rank-fill" id="rankFill"></div>
         </div>
       </section>
 
-      <!-- Interactive Input Display -->
-      <div class="input-container">
+      <!-- Input Display & Tactile Clear Control -->
+      <div class="input-container" id="inputContainer">
         <div class="feedback" id="feedback" aria-live="polite"></div>
-        <div class="input-display" id="inputDisplay" aria-live="assertive">
-          <span class="cursor" aria-hidden="true"></span>
+        <div class="input-display-wrap">
+          <div class="input-display" id="inputDisplay">
+            <span class="cursor" aria-hidden="true"></span>
+          </div>
+          <button type="button" class="btn-quick-clear" id="btnQuickClear" aria-label="Clear current word" title="Clear word" hidden>&times;</button>
         </div>
       </div>
 
-      <!-- CENTER: The Glass & Brass Honeycomb Hive -->
-      <main class="hive-board" aria-label="Letter Hexagons">
+      <!-- Honeycomb Hive: Smoked Glass & Molten Amber Vector Hexagons -->
+      <main class="hive-board" id="hiveBoard" aria-label="Letter Hexagons" role="group">
         <div class="hive-row top">
           <button type="button" class="hex-btn" id="cell-0" data-index="0" aria-label="Letter">
             <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
-              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape outer-hex" />
+              <polygon points="50,4 96,30 96,85 50,111 4,85 4,30" class="hex-shape-shadow" />
+              <g class="hex-shape-group">
+                <polygon points="50,2 96,28 96,83 50,109 4,83 4,28" class="hex-shape outer-hex" />
+                <polygon points="50,5 93,29 93,81 50,105 7,81 7,29" class="hex-bevel-line" />
+                <text x="50" y="58" class="hex-svg-letter"></text>
+              </g>
             </svg>
-            <span class="hex-letter"></span>
           </button>
           <button type="button" class="hex-btn" id="cell-1" data-index="1" aria-label="Letter">
             <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
-              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape outer-hex" />
+              <polygon points="50,4 96,30 96,85 50,111 4,85 4,30" class="hex-shape-shadow" />
+              <g class="hex-shape-group">
+                <polygon points="50,2 96,28 96,83 50,109 4,83 4,28" class="hex-shape outer-hex" />
+                <polygon points="50,5 93,29 93,81 50,105 7,81 7,29" class="hex-bevel-line" />
+                <text x="50" y="58" class="hex-svg-letter"></text>
+              </g>
             </svg>
-            <span class="hex-letter"></span>
           </button>
         </div>
 
         <div class="hive-row mid">
           <button type="button" class="hex-btn" id="cell-2" data-index="2" aria-label="Letter">
             <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
-              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape outer-hex" />
+              <polygon points="50,4 96,30 96,85 50,111 4,85 4,30" class="hex-shape-shadow" />
+              <g class="hex-shape-group">
+                <polygon points="50,2 96,28 96,83 50,109 4,83 4,28" class="hex-shape outer-hex" />
+                <polygon points="50,5 93,29 93,81 50,105 7,81 7,29" class="hex-bevel-line" />
+                <text x="50" y="58" class="hex-svg-letter"></text>
+              </g>
             </svg>
-            <span class="hex-letter"></span>
           </button>
 
-          <!-- The Vital Center Letter -->
+          <!-- Center Molten Amber Hexagon with Inner Specular Glow -->
           <button type="button" class="hex-btn hex-center" id="cellCenter" aria-label="Center Letter">
             <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
-              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape center-hex" />
+              <polygon points="50,4 96,30 96,85 50,111 4,85 4,30" class="hex-shape-shadow hex-center-shadow" />
+              <g class="hex-shape-group">
+                <polygon points="50,2 96,28 96,83 50,109 4,83 4,28" class="hex-shape center-hex" />
+                <polygon points="50,5 93,29 93,81 50,105 7,81 7,29" class="hex-bevel-line center-bevel" />
+                <text x="50" y="58" class="hex-svg-letter center-hex-letter"></text>
+              </g>
             </svg>
-            <span class="hex-letter"></span>
           </button>
 
           <button type="button" class="hex-btn" id="cell-3" data-index="3" aria-label="Letter">
             <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
-              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape outer-hex" />
+              <polygon points="50,4 96,30 96,85 50,111 4,85 4,30" class="hex-shape-shadow" />
+              <g class="hex-shape-group">
+                <polygon points="50,2 96,28 96,83 50,109 4,83 4,28" class="hex-shape outer-hex" />
+                <polygon points="50,5 93,29 93,81 50,105 7,81 7,29" class="hex-bevel-line" />
+                <text x="50" y="58" class="hex-svg-letter"></text>
+              </g>
             </svg>
-            <span class="hex-letter"></span>
           </button>
         </div>
 
         <div class="hive-row bottom">
           <button type="button" class="hex-btn" id="cell-4" data-index="4" aria-label="Letter">
             <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
-              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape outer-hex" />
+              <polygon points="50,4 96,30 96,85 50,111 4,85 4,30" class="hex-shape-shadow" />
+              <g class="hex-shape-group">
+                <polygon points="50,2 96,28 96,83 50,109 4,83 4,28" class="hex-shape outer-hex" />
+                <polygon points="50,5 93,29 93,81 50,105 7,81 7,29" class="hex-bevel-line" />
+                <text x="50" y="58" class="hex-svg-letter"></text>
+              </g>
             </svg>
-            <span class="hex-letter"></span>
           </button>
           <button type="button" class="hex-btn" id="cell-5" data-index="5" aria-label="Letter">
             <svg viewBox="0 0 100 115" class="hex-svg" aria-hidden="true">
-              <polygon points="50,2 98,29 98,86 50,113 2,86 2,29" class="hex-shape outer-hex" />
+              <polygon points="50,4 96,30 96,85 50,111 4,85 4,30" class="hex-shape-shadow" />
+              <g class="hex-shape-group">
+                <polygon points="50,2 96,28 96,83 50,109 4,83 4,28" class="hex-shape outer-hex" />
+                <polygon points="50,5 93,29 93,81 50,105 7,81 7,29" class="hex-bevel-line" />
+                <text x="50" y="58" class="hex-svg-letter"></text>
+              </g>
             </svg>
-            <span class="hex-letter"></span>
           </button>
         </div>
       </main>
 
-      <!-- Tactile Gameplay Controls -->
-      <section class="gameplay-controls" aria-label="Actions">
-        <button type="button" class="btn btn-secondary" id="btnDelete">Delete</button>
-        <button type="button" class="btn btn-secondary btn-shuffle" id="btnShuffle" aria-label="Shuffle Outer Letters">
-          Shuffle <span class="shuffle-icon" aria-hidden="true">⟳</span>
-        </button>
-        <button type="button" class="btn btn-action" id="btnEnter">Enter</button>
+      <!-- Ergonomic Action Controls -->
+      <section class="gameplay-controls" aria-label="Word Actions">
+        <button type="button" class="btn btn-secondary btn-control-del" id="btnDelete" aria-label="Delete last letter (Hold to clear all)">Delete</button>
+        <button type="button" class="btn btn-secondary btn-control-shuf" id="btnShuffle" aria-label="Shuffle Outer Letters">Shuffle ⟳</button>
+        <button type="button" class="btn btn-action btn-control-enter" id="btnEnter">Enter</button>
       </section>
 
-      <!-- Supporting Found Words Drawer -->
+      <!-- Found Words Smoked Glass Drawer -->
       <section class="found-drawer" aria-label="Found Words Accordion">
         <button type="button" class="found-toggle-bar" id="foundToggle" aria-expanded="false" aria-controls="foundListWrap">
           <span class="found-toggle-title">Found Words (<span id="foundCount">0</span>)</span>
+          <span class="found-peek-hint" aria-hidden="true">Tap word for definition</span>
           <span class="toggle-icon" id="foundToggleIcon" aria-hidden="true">▼</span>
         </button>
         <div class="found-list-wrap" id="foundListWrap" hidden>
+          <div class="found-toolbar">
+            <div class="sort-group">
+              <button type="button" class="sort-btn active" id="btnSortAlpha">A-Z</button>
+              <button type="button" class="sort-btn" id="btnSortRecent">Recent</button>
+            </div>
+            <button type="button" class="btn-subtle-reveal" id="btnVaultReveal" hidden>Reveal Unfound</button>
+          </div>
           <div class="found-list" id="foundList"></div>
         </div>
       </section>
     </section>
 
     <!-- ==========================================
-         VIEW 3: VAULT ARCHIVE SCREEN
+         VIEW 3: VAULT ARCHIVE
          ========================================== -->
     <section class="view view-vault" id="vaultView" hidden aria-label="Puzzle Archive">
       <header class="vault-header">
         <button type="button" class="btn btn-back" id="btnVaultBack">
-          <span class="btn-arrow" aria-hidden="true">←</span> Menu
+          <span aria-hidden="true">←</span> Menu
         </button>
-        <div class="vault-title-wrap">
-          <h2 class="vault-title">The Vault</h2>
-        </div>
+        <h2 class="vault-title">The Vault</h2>
         <span class="vault-count-badge" id="vaultHeaderCount">0</span>
       </header>
 
-      <div class="vault-intro">
-        <p>Complete historical honeycombs at your own leisure. Saved automatically to your lounge record.</p>
+      <div class="vault-filters" role="group" aria-label="Archive Filters">
+        <button type="button" class="vault-filter-btn active" data-filter="all">All</button>
+        <button type="button" class="vault-filter-btn" data-filter="unplayed">Unplayed</button>
+        <button type="button" class="vault-filter-btn" data-filter="inprogress">In Progress</button>
+        <button type="button" class="vault-filter-btn" data-filter="completed">Mastered</button>
       </div>
 
-      <div class="vault-grid" id="vaultGrid" role="feed" aria-label="Past Puzzles">
-        <!-- Injected via JavaScript -->
-      </div>
+      <div class="vault-grid" id="vaultGrid" role="feed" aria-label="Past Puzzles"></div>
     </section>
 
     <!-- ==========================================
-         MODALS: RULES & STATS
+         HOW TO PLAY RIGHT-ENTERING LUXURY SHEET
+         (Strict Right-to-Left Entrance & Content-First Sizing)
          ========================================== -->
-    <div class="modal-backdrop" id="modalRules" hidden role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+    <div class="how-to-overlay" id="howToOverlay" hidden aria-hidden="true">
+      <div class="how-to-backdrop" id="howToBackdrop"></div>
+      <aside class="how-to-panel" id="howToPanel" role="dialog" aria-modal="true" aria-labelledby="howToTitle">
+        <header class="how-to-panel-header">
+          <div class="how-to-header-title-group">
+            <span class="panel-kicker">RULES & GUIDE</span>
+            <h2 class="how-to-panel-title" id="howToTitle">How to Play</h2>
+          </div>
+          <button type="button" class="btn-panel-back" id="btnHowToBack" aria-label="Close How to Play panel">
+            <span aria-hidden="true">✕</span> Close
+          </button>
+        </header>
+        <div class="how-to-panel-content">
+          <div class="instruction-group">
+            <h3 class="instruction-heading">Core Objective</h3>
+            <p>Construct as many words as possible using the 7 letters shown in the honeycomb. Always include the center letter in every single word.</p>
+          </div>
+
+          <div class="instruction-group">
+            <h3 class="instruction-heading">Rules of the Hive</h3>
+            <ul class="rules-list">
+              <li>Words must be at least <strong>4 letters long</strong>.</li>
+              <li>Every word must contain the <strong>center letter</strong> at least once.</li>
+              <li>Letters can be reused multiple times.</li>
+              <li>Proper nouns, slang, obscenities, and hyphenated words are excluded.</li>
+            </ul>
+          </div>
+
+          <div class="instruction-group">
+            <h3 class="instruction-heading">Point System</h3>
+            <div class="score-cards-grid">
+              <div class="score-card">
+                <span class="score-val">1 pt</span>
+                <span class="score-desc">4-letter words</span>
+              </div>
+              <div class="score-card">
+                <span class="score-val">1 pt / letter</span>
+                <span class="score-desc">Words with 5+ letters</span>
+              </div>
+              <div class="score-card highlight">
+                <span class="score-val">+7 pts bonus</span>
+                <span class="score-desc"><strong>Pangram</strong> (uses all 7 letters)</span>
+              </div>
+              <div class="score-card royal">
+                <span class="score-val">👑 Queen Bee</span>
+                <span class="score-desc">Discover 100% of all puzzle words!</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="instruction-group">
+            <h3 class="instruction-heading">Tips & Shortcuts</h3>
+            <p class="instruction-tip">Use your keyboard directly! Letters input words, <strong>Space</strong> or <strong>/</strong> shuffles the outer hive, <strong>Backspace</strong> deletes, and <strong>Enter</strong> submits.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ==========================================
+         SETTINGS MODAL (SMOKED GLASS & BRASS TOGGLES)
+         ========================================== -->
+    <div class="modal-backdrop" id="modalSettings" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
       <div class="modal-window">
         <header class="modal-header">
-          <div class="modal-title-wrap">
-            <span class="modal-eyebrow">Cocktail Lounge Handbook</span>
-            <h3 id="rulesTitle">How to Play</h3>
-          </div>
-          <button type="button" class="modal-close" data-close="modalRules" aria-label="Close modal">&times;</button>
+          <h3 id="settingsTitle">Settings</h3>
+          <button type="button" class="modal-close" data-close="modalSettings" aria-label="Close settings">&times;</button>
         </header>
         <div class="modal-body">
-          <ul class="rules-guide">
-            <li><strong>Words must contain at least 4 letters.</strong></li>
-            <li><strong>Words must include the center letter.</strong></li>
-            <li>Letters may be used more than once.</li>
-            <li>4-letter words earn 1 point.</li>
-            <li>Longer words score 1 point per letter.</li>
-            <li>Each honeycomb contains at least one <strong>Pangram</strong> that utilizes all 7 letters for <strong>7 bonus points</strong>!</li>
-          </ul>
+          <div class="settings-row">
+            <div class="settings-text">
+              <span class="settings-name">Atmospheric Garnishes</span>
+              <span class="settings-hint">Calm upward floating botanical lounge garnishes</span>
+            </div>
+            <div class="toggle-switch-wrap">
+              <button type="button" class="toggle-btn" id="btnToggleAnimation" role="switch" aria-checked="true">
+                <span class="toggle-indicator"></span>
+                <span class="toggle-state-text">ON</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-text">
+              <span class="settings-name">Haptic Feedback</span>
+              <span class="settings-hint">Subtle vibration when tapping letters on supported devices</span>
+            </div>
+            <div class="toggle-switch-wrap">
+              <button type="button" class="toggle-btn" id="btnToggleHaptics" role="switch" aria-checked="true">
+                <span class="toggle-indicator"></span>
+                <span class="toggle-state-text">ON</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="backup-section">
+            <h4 class="backup-title">Data Backup & Device Transfer</h4>
+            <div class="backup-actions">
+              <button type="button" class="btn btn-secondary btn-subtle" id="btnExportData">Export Backup</button>
+              <button type="button" class="btn btn-secondary btn-subtle" id="btnImportData">Import Backup</button>
+            </div>
+            <textarea id="backupPayloadArea" class="backup-textarea" placeholder="Paste backup data here to import..." hidden></textarea>
+          </div>
         </div>
         <footer class="modal-footer">
-          <button type="button" class="btn btn-action w-full" data-close="modalRules">Got It</button>
+          <button type="button" class="btn btn-action w-full" data-close="modalSettings">Done</button>
         </footer>
       </div>
     </div>
 
+    <!-- Career Stats Modal -->
     <div class="modal-backdrop" id="modalStats" hidden role="dialog" aria-modal="true" aria-labelledby="statsTitle">
       <div class="modal-window">
         <header class="modal-header">
-          <div class="modal-title-wrap">
-            <span class="modal-eyebrow">Personal Ledger</span>
-            <h3 id="statsTitle">Career Statistics</h3>
-          </div>
-          <button type="button" class="modal-close" data-close="modalStats" aria-label="Close modal">&times;</button>
+          <h3 id="statsTitle">Career Statistics</h3>
+          <button type="button" class="modal-close" data-close="modalStats" aria-label="Close stats">&times;</button>
         </header>
         <div class="modal-body">
           <div class="stat-tiles">
             <div class="stat-tile">
               <span class="stat-value" id="statPlayed">0</span>
-              <span class="stat-label">Played</span>
+              <span class="stat-label">Puzzles Played</span>
             </div>
             <div class="stat-tile">
               <span class="stat-value" id="statWords">0</span>
-              <span class="stat-label">Words</span>
+              <span class="stat-label">Words Found</span>
             </div>
             <div class="stat-tile">
               <span class="stat-value" id="statPangrams">0</span>
@@ -296,7 +439,7 @@
             </div>
             <div class="stat-tile">
               <span class="stat-value" id="statPoints">0</span>
-              <span class="stat-label">Points</span>
+              <span class="stat-label">Total Points</span>
             </div>
           </div>
           <div class="streak-tiles">
@@ -309,9 +452,81 @@
               <span class="stat-label">Best Streak</span>
             </div>
           </div>
+          <div class="streak-shield-notice" id="streakShieldNotice">
+            🛡️ <strong>Streak Shield Active:</strong> Missing a single day will protect your current streak once per month.
+          </div>
         </div>
         <footer class="modal-footer">
-          <button type="button" class="btn btn-secondary w-full" data-close="modalStats">Close</button>
+          <button type="button" class="btn btn-action w-full" data-close="modalStats">Close</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Official Spelling Bee Grid Hints Modal -->
+    <div class="modal-backdrop" id="modalHints" hidden role="dialog" aria-modal="true" aria-labelledby="hintsTitle">
+      <div class="modal-window">
+        <header class="modal-header">
+          <h3 id="hintsTitle">Spelling Bee Hints</h3>
+          <button type="button" class="modal-close" data-close="modalHints" aria-label="Close hints">&times;</button>
+        </header>
+        <div class="modal-body">
+          <div class="hints-toggle-row">
+            <span class="hints-toggle-label">Matrix Mode:</span>
+            <div class="sort-group">
+              <button type="button" class="sort-btn active" id="btnHintsModeRemaining">Remaining</button>
+              <button type="button" class="sort-btn" id="btnHintsModeTotal">Total</button>
+            </div>
+          </div>
+          <div class="hints-summary" id="hintsSummary"></div>
+          <div class="hints-table-wrap">
+            <table class="hints-table" id="hintsTable" aria-label="Word count by starting letter and length"></table>
+          </div>
+          <h4 class="hints-subhead">Two-Letter List</h4>
+          <div class="hints-two-letter" id="hintsTwoLetter"></div>
+        </div>
+        <footer class="modal-footer">
+          <button type="button" class="btn btn-action w-full" data-close="modalHints">Resume Game</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Word Definition Peek Modal -->
+    <div class="modal-backdrop" id="modalDefinition" hidden role="dialog" aria-modal="true" aria-labelledby="defTitle">
+      <div class="modal-window">
+        <header class="modal-header">
+          <h3 id="defTitle">Word Meaning</h3>
+          <button type="button" class="modal-close" data-close="modalDefinition" aria-label="Close definition">&times;</button>
+        </header>
+        <div class="modal-body def-modal-body">
+          <div class="def-word-title" id="defWordTitle">WORD</div>
+          <div class="def-meta" id="defMeta"></div>
+          <div class="def-meaning-wrap" id="defMeaningWrap">
+            <p id="defMeaningText">Looking up definition...</p>
+          </div>
+          <div class="def-source-link" id="defSourceWrap">
+            <a href="#" id="defExternalLink" target="_blank" rel="noopener noreferrer" class="btn btn-subtle">Open in Wiktionary ↗</a>
+          </div>
+        </div>
+        <footer class="modal-footer">
+          <button type="button" class="btn btn-secondary w-full" data-close="modalDefinition">Done</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Queen Bee Achievement Modal -->
+    <div class="modal-backdrop" id="modalQueenBee" hidden role="dialog" aria-modal="true" aria-labelledby="qbTitle">
+      <div class="modal-window">
+        <header class="modal-header">
+          <h3 id="qbTitle">Queen Bee Reached!</h3>
+          <button type="button" class="modal-close" data-close="modalQueenBee" aria-label="Close">&times;</button>
+        </header>
+        <div class="modal-body qb-modal-content">
+          <div class="qb-modal-icon" aria-hidden="true">👑</div>
+          <h2 class="qb-modal-title">Phenomenal!</h2>
+          <p>You have discovered every single valid word in this puzzle and earned the maximum possible points.</p>
+        </div>
+        <footer class="modal-footer">
+          <button type="button" class="btn btn-action w-full" data-close="modalQueenBee">Long Live the Queen!</button>
         </footer>
       </div>
     </div>
